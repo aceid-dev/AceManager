@@ -13,36 +13,23 @@ on:
 jobs:
   release:
     runs-on: windows-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - name: Instalar PS2EXE
+      - name: Instalar Compilador (PS2EXE)
         shell: powershell
         run: |
           Install-Module ps2exe -Force -Scope CurrentUser -AllowClobber
-
-      - name: Compilar EXEs con Versión Dinámica
-        shell: powershell
-        run: |
-          # Construimos la versión usando el run_number como tercer o cuarto dígito
-          $version = "1.0.0.${{ github.run_number }}"
-
-          $buildScript = "./.github/scripts/build.ps1"
-          if (Test-Path $buildScript) {
-              # Pasamos la versión directamente al parámetro del script
-              & $buildScript -AppVersion $version
-          } else {
-              Write-Error "No se encontró build.ps1"
-              exit 1
-          }
 
       - name: Semantic Release
         uses: cycjimmy/semantic-release-action@v4
         with:
           branches: main
+          extra_plugins: |
+            @semantic-release/exec
+            conventional-changelog-conventionalcommits
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
