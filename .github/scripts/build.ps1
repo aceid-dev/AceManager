@@ -40,10 +40,6 @@ $codigoUnificado = foreach ($f in $archivos) {
         $contenidoLimpio = $contenidoLimpio -replace `
             '(?ms)#\s*Ejecutar solo si se llama directamente.*$', `
             '# Bloque de auto-ejecución removido por build'
-            
-        # Eliminar Limpieza de pan
-        $contenidoLimpio = $contenidoLimpio -replace `
-            'Clear-Host'`
 
         $contenidoLimpio
         "`n# --- Fin de archivo: src/$f ---`n"

@@ -21,7 +21,6 @@ function Start-AceEngine {
 
         if ($count -lt $timeout) {
             Write-Host "Engine started"
-            Clear-Host
             return $true
         }
         else {
