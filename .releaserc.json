@@ -1,0 +1,80 @@
+{
+  "branches": [
+    "main"
+  ],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits",
+        "presetConfig": {
+          "types": [
+            {
+              "type": "feat",
+              "section": "🚀 Nuevas funcionalidades",
+              "release": "minor"
+            },
+            {
+              "type": "fix",
+              "section": "🐛 Correcciones de errores",
+              "release": "patch"
+            },
+            {
+              "type": "perf",
+              "section": "⚡ Mejoras de rendimiento",
+              "release": "patch"
+            },
+            {
+              "type": "refactor",
+              "section": "♻️ Refactorización",
+              "release": false
+            },
+            {
+              "type": "docs",
+              "section": "📝 Documentación",
+              "release": false
+            },
+            {
+              "type": "test",
+              "section": "🧪 Tests",
+              "release": false
+            },
+            {
+              "type": "style",
+              "section": "🎨 Estilos",
+              "release": false
+            },
+            {
+              "type": "ci",
+              "section": "🤖 Integración continua",
+              "release": false
+            },
+            {
+              "type": "chore",
+              "section": "🔧 Mantenimiento",
+              "release": false
+            }
+          ]
+        }
+      }
+    ],
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "powershell ./.github/scripts/build.ps1 -AppVersion ${nextRelease.version}.0"
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "assets": [
+          {
+            "path": "AceManager.zip",
+            "label": "AceManager.zip"
+          }
+        ]
+      }
+    ]
+  ]
+}
