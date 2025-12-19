@@ -62,7 +62,7 @@ $codigoUnificado | Set-Content -Path $tempScript -Encoding UTF8
 Write-Host "Script temporal creado: $tempScript" -ForegroundColor Green
 
 # 5. Compilar a EXE con ps2exe
-$rutaIcono = Join-Path $repoRoot "utils/launcher.ico"
+$rutaIcono = Join-Path $repoRoot "icons/launcher.ico"
 
 $params = @{
     inputFile  = $tempScript
@@ -73,7 +73,7 @@ $params = @{
 
 if (Test-Path $rutaIcono) {
     $params.Add("iconFile", $rutaIcono)
-    Write-Host "Icono aplicado: utils/launcher.ico" -ForegroundColor Green
+    Write-Host "Icono aplicado: $rutaIcono" -ForegroundColor Green
 }
 else {
     Write-Warning "Icono no encontrado, se usará icono genérico."
