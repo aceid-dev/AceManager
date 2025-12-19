@@ -6,8 +6,8 @@ on:
       - main
     paths:
       - 'src/**'
+      - 'utils/**'
       - '.github/scripts/build.ps1'
-
   workflow_dispatch:
 
 jobs:
@@ -25,13 +25,16 @@ jobs:
         run: |
           Install-Module ps2exe -Force -Scope CurrentUser -AllowClobber
 
-      - name: Compilar EXE
+      - name: Compilar EXEs con Versión Dinámica
         shell: powershell
         run: |
-          $buildScript = "./.github/scripts/build.ps1"
+          # Construimos la versión usando el run_number como tercer o cuarto dígito
+          $version = "1.0.0.${{ github.run_number }}"
 
+          $buildScript = "./.github/scripts/build.ps1"
           if (Test-Path $buildScript) {
-              & $buildScript
+              # Pasamos la versión directamente al parámetro del script
+              & $buildScript -AppVersion $version
           } else {
               Write-Error "No se encontró build.ps1"
               exit 1
