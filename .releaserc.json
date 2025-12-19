@@ -12,6 +12,10 @@
           {
             "path": "AceManager.exe",
             "label": "AceManager.exe"
+          },
+          {
+            "path": "ListaAceStream.exe",
+            "label": "ListaAceStream.exe"
           }
         ]
       }

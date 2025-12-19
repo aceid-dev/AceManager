@@ -1,21 +1,7 @@
-﻿# utils\lista_acestream.ps1
-
-# Ruta absoluta al script actual
-$scriptDir = $PSScriptRoot  # = ...\ACEStream\utils
-
-# Ruta al directorio raíz (un nivel arriba)
-$rootDir = Split-Path $scriptDir -Parent
-$functionPath = Join-Path $rootDir "Start-AceEngine.ps1"
-
-# Validar existencia
-if (-not (Test-Path $functionPath)) {
-    Write-Host "Error: No se encontro Start-AceEngine.ps1 en: $functionPath" -ForegroundColor Red
-    Pause
-    exit 1
-}
+# utils\lista_acestream.ps1
 
 # Cargar la función
-. $functionPath
+. $PSScriptRoot  "..\src\Start-AceEngine.ps1"
 
 # Verificar que se cargó
 if (-not (Get-Command Start-AceEngine -ErrorAction SilentlyContinue)) {
