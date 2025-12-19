@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'src/**'
+      - '.github/scripts/build.ps1'
 
   workflow_dispatch:
 
