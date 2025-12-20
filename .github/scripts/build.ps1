@@ -71,10 +71,10 @@ function Build-Target {
         Write-Host "   > Generando ejecutable..." -ForegroundColor DarkCyan
         
         Invoke-ps2exe -inputFile $tempScript `
-                      -outputFile $exePath `
-                      -iconFile $IconPath `
-                      -title $Title `
-                      -version $AppVersion
+            -outputFile $exePath `
+            -iconFile $IconPath `
+            -title $Title `
+            -version $AppVersion
 
         if (Test-Path $exePath) {
             Write-Host "   [OK] $OutputName.exe creado con éxito." -ForegroundColor Green
@@ -94,7 +94,7 @@ function Build-Target {
             Write-Host "   [INFO] Limpieza de temporales completada." -ForegroundColor DarkGray
         }
     }
-  }
+}
 
 # --- DEFINICIÓN DE OBJETIVOS (TARGETS) ---
 

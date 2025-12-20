@@ -1,7 +1,7 @@
 # utils\lista_acestream.ps1
 
 # Cargar la función
-. $PSScriptRoot  "..\src\Start-AceEngine.ps1"
+. "$PSScriptRoot\..\src\Start-AceEngine.ps1"
 
 # Verificar que se cargó
 if (-not (Get-Command Start-AceEngine -ErrorAction SilentlyContinue)) {
@@ -19,12 +19,13 @@ if (Start-AceEngine) {
 
     if (Test-Path $vlcPath) {
         Start-Process -FilePath $vlcPath -ArgumentList "`"$url`"", "--no-playlist-autostart"
-        Write-Host "VLC iniciado con la lista" -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "Error: VLC no encontrado en: $vlcPath" -ForegroundColor Red
         Pause
     }
-} else {
+}
+else {
     Write-Host "Error: No se pudo iniciar el motor ACEStream." -ForegroundColor Red
     Pause
 }

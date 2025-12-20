@@ -110,21 +110,24 @@ try {
     
     if (-not $ACE_INSTALLER) { 
         $missingFiles += "Ace Stream installer (Ace_Stream*.exe)"
-    } else {
+    }
+    else {
         Write-Host "  Encontrado: $($ACE_INSTALLER.Name)" -ForegroundColor Green
         $ACE_INSTALLER = $ACE_INSTALLER.FullName
     }
     
     if (-not $VLC_INSTALLER) { 
         $missingFiles += "VLC installer (vlc*.exe)"
-    } else {
+    }
+    else {
         Write-Host "  Encontrado: $($VLC_INSTALLER.Name)" -ForegroundColor Green
         $VLC_INSTALLER = $VLC_INSTALLER.FullName
     }
     
     if (-not $ACEMANAGER_SRC) { 
         $missingFiles += "AceManager.exe"
-    } else {
+    }
+    else {
         Write-Host "  Encontrado: $($ACEMANAGER_SRC.Name)" -ForegroundColor Green
         $ACEMANAGER_SRC = $ACEMANAGER_SRC.FullName
     }
