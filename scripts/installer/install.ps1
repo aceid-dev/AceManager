@@ -1,4 +1,4 @@
-<# 
+﻿<# 
 .SYNOPSIS
 Instalador AceManager - Version con deteccion automatica de archivos
 .DESCRIPTION

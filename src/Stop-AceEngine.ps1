@@ -1,4 +1,4 @@
-function Stop-AceEngine {
+﻿function Stop-AceEngine {
     # Define list of processes to stop
     $processNames = @(
         "ace_engine",

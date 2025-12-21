@@ -1,4 +1,4 @@
-function Start-Player {
+﻿function Start-Player {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $false, Position = 0)]

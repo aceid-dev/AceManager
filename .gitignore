@@ -416,3 +416,14 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+*.exe
+
+
+# Scripts temporales
+temp*.ps1
+
+# Build
+*.zip
+*.7z
+*.rar
+*.tar.*

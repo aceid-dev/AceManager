@@ -1,4 +1,4 @@
-function Start-AceEngine {
+﻿function Start-AceEngine {
     $enginePath = "$env:APPDATA\ACEStream\engine\ace_engine.exe"
 
     if (-not (Test-Path $enginePath)) {

@@ -1,4 +1,4 @@
-. "$PSScriptRoot\Stop-AceEngine.ps1"
+﻿. "$PSScriptRoot\Stop-AceEngine.ps1"
 . "$PSScriptRoot\Check-AceEngine.ps1"
 . "$PSScriptRoot\Start-AceEngine.ps1"
 . "$PSScriptRoot\Start-Player.ps1"

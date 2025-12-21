@@ -1,4 +1,4 @@
-. "$PSScriptRoot\Start-AceEngine.ps1"
+﻿. "$PSScriptRoot\Start-AceEngine.ps1"
 
 function Test-AceEngine {
     [CmdletBinding()]
