@@ -1,7 +1,8 @@
 <#
 .SYNOPSIS
     Script de compilación para AceManager y utilidades.
-    Une múltiples archivos .ps1 en un solo ejecutable sincronizado con Semantic Release.
+    Une múltiples archivos .ps1 en un solo ejecutable sincronizado con Semantic Release
+    y genera un paquete ZIP de distribución.
 #>
 
 param (
@@ -81,9 +82,9 @@ function Build-Target {
         }
     }
     catch {
-        # Extraemos el mensaje a una variable simple para evitar errores de símbolos (: o $)
+        # Extraemos el mensaje a una variable simple para evitar errores de símbolos
         $errorMessage = $_.Exception.Message
-        Write-Host "   [ERROR] Fallo la compilacion de $OutputName" -ForegroundColor Red
+        Write-Host "   [ERROR] Falló la compilación de $OutputName" -ForegroundColor Red
         Write-Host "   [DETALLE] $errorMessage" -ForegroundColor DarkRed
         exit 1
     }
@@ -96,10 +97,10 @@ function Build-Target {
     }
 }
 
-# --- DEFINICIÓN DE OBJETIVOS (TARGETS) ---
+# --- EJECUCIÓN DEL PROCESO ---
 
 try {
-    # 1. Compilación del AceManager Principal
+    # 1. Compilación de los Ejecutables
     Build-Target -Files @(
         "src/functions/pause.ps1",
         "src/Start-AceEngine.ps1",
@@ -107,16 +108,37 @@ try {
         "src/Check-AceEngine.ps1",
         "src/Start-Player.ps1",
         "src/main.ps1"
-    ) -OutputName "AceManager" -IconPath "$repoRoot/icons/launcher.ico" -Title "Ace Stream Engine Controller"
+    ) -OutputName "AceManager" -IconPath "$repoRoot/icons/launcher.ico" -Title "Ace Manager"
 
-    # 2. Compilación de la utilidad Lista AceStream
     Build-Target -Files @(
         "src/functions/pause.ps1",
         "src/Start-AceEngine.ps1",
         "utils/lista_acestream.ps1"
-    ) -OutputName "ListaAceStream" -IconPath "$repoRoot/icons/icon.ico" -Title "AceStream List Launcher"
+    ) -OutputName "ListaAceStream" -IconPath "$repoRoot/icons/icon.ico" -Title "Lista AceStream Launcher"
 
-    Write-Host "`n🚀 PROCESO FINALIZADO: Todos los ejecutables están listos." -ForegroundColor DarkGreen
+    # 2. Creación del Paquete de Distribución (ZIP)
+    Write-Host "`n>> Iniciando empaquetado ZIP..." -ForegroundColor Yellow
+    
+    # Definir carpeta temporal para el paquete
+    $packageDir = Join-Path $repoRoot "AceManager_v$AppVersion"
+    if (Test-Path $packageDir) { Remove-Item $packageDir -Recurse -Force }
+    New-Item -ItemType Directory -Path $packageDir | Out-Null
+
+    # Copiar archivos necesarios al paquete
+    Copy-Item (Join-Path $repoRoot "AceManager.exe") -Destination $packageDir
+    Copy-Item (Join-Path $repoRoot "ListaAceStream.exe") -Destination $packageDir
+    Copy-Item (Join-Path $repoRoot "config.ini") -Destination $packageDir
+
+    # Crear el archivo ZIP final
+    $zipPath = Join-Path $repoRoot "AceManager_v$AppVersion.zip"
+    Compress-Archive -Path "$packageDir\*" -DestinationPath $zipPath -Force
+
+    Write-Host "   [OK] Paquete ZIP generado: AceManager_v$AppVersion.zip" -ForegroundColor Green
+    
+    # Limpiar carpeta de empaquetado
+    Remove-Item $packageDir -Recurse -Force
+
+    Write-Host "`n🚀 PROCESO FINALIZADO: Todo está listo para el release." -ForegroundColor DarkGreen
 }
 catch {
     Write-Host "`n❌ ERROR CRÍTICO durante el proceso de build." -ForegroundColor Red

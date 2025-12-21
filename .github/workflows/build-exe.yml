@@ -2,11 +2,11 @@ name: Build & Release AceStream Menu
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
     paths:
       - 'src/**'
       - 'utils/**'
+      - 'config.json'
       - '.github/scripts/build.ps1'
   workflow_dispatch:
 
@@ -19,10 +19,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Instalar Compilador (PS2EXE)
+      - name: Instalar Herramientas (PS2EXE)
         shell: powershell
-        run: |
-          Install-Module ps2exe -Force -Scope CurrentUser -AllowClobber
+        run: Install-Module ps2exe -Force -Scope CurrentUser -AllowClobber
 
       - name: Semantic Release
         uses: cycjimmy/semantic-release-action@v4
