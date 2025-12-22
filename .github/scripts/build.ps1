@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Script de compilación para AceManager y utilidades.
     Une múltiples archivos .ps1 en un solo ejecutable sincronizado con Semantic Release

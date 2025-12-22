@@ -1,4 +1,4 @@
-# utils\lista_acestream.ps1
+﻿# utils\lista_acestream.ps1
 # ---------------------------------------------------------
 # Localizar el archivo de configuración al lado del ejecutable
 $iniPath = Join-Path $PSScriptRoot "config.ini"
