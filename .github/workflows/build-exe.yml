@@ -4,10 +4,11 @@ on:
   push:
     branches: [main]
     paths:
-      - 'src/**'
-      - 'utils/**'
-      - 'config.json'
-      - '.github/scripts/build.ps1'
+      - "src/**"
+      - "utils/**"
+      - "config.json"
+      - ".github/scripts/build.ps1"
+      - ".releaserc.json"
   workflow_dispatch:
 
 jobs:

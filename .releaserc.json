@@ -1,5 +1,7 @@
 {
-  "branches": ["main"],
+  "branches": [
+    "main"
+  ],
   "plugins": [
     "@semantic-release/commit-analyzer",
     [
@@ -8,8 +10,51 @@
         "preset": "conventionalcommits",
         "presetConfig": {
           "types": [
-            {"type": "feat", "section": "✨ Características"},
-            {"type": "fix", "section": "🐛 Correcciones"}
+            {
+              "type": "feat",
+              "section": "🚀 Nuevas funcionalidades",
+              "release": "minor"
+            },
+            {
+              "type": "fix",
+              "section": "🐛 Correcciones de errores",
+              "release": "patch"
+            },
+            {
+              "type": "perf",
+              "section": "⚡ Mejoras de rendimiento",
+              "release": "patch"
+            },
+            {
+              "type": "refactor",
+              "section": "♻️ Refactorización",
+              "release": false
+            },
+            {
+              "type": "docs",
+              "section": "📝 Documentación",
+              "release": false
+            },
+            {
+              "type": "test",
+              "section": "🧪 Tests",
+              "release": false
+            },
+            {
+              "type": "style",
+              "section": "🎨 Estilos",
+              "release": false
+            },
+            {
+              "type": "ci",
+              "section": "🤖 Integración continua",
+              "release": false
+            },
+            {
+              "type": "chore",
+              "section": "🔧 Mantenimiento",
+              "release": false
+            }
           ]
         }
       }
@@ -25,8 +70,8 @@
       {
         "assets": [
           {
-            "path": "*.zip",
-            "label": "AceManager-Full-Package.zip"
+            "path": "AceManager.zip",
+            "label": "AceManager.zip"
           }
         ]
       }

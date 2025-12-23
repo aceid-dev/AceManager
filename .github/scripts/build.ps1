@@ -130,10 +130,10 @@ try {
     Copy-Item (Join-Path $repoRoot "config.ini") -Destination $packageDir
 
     # Crear el archivo ZIP final
-    $zipPath = Join-Path $repoRoot "AceManager_v$AppVersion.zip"
+    $zipPath = Join-Path $repoRoot "AceManager.zip"
     Compress-Archive -Path "$packageDir\*" -DestinationPath $zipPath -Force
 
-    Write-Host "   [OK] Paquete ZIP generado: AceManager_v$AppVersion.zip" -ForegroundColor Green
+    Write-Host "   [OK] Paquete ZIP generado: AceManager.zip" -ForegroundColor Green
     
     # Limpiar carpeta de empaquetado
     Remove-Item $packageDir -Recurse -Force
