@@ -1,6 +1,6 @@
 ﻿# utils\Create-Shortcut.ps1
 $startMenuPath = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs"
-# Ruta base de la app (raíz del proyecto)
+# Ruta base de la app (raiz del proyecto)
 $appRoot = "$env:APPDATA\ACEStream\manager"
 $utilsPath = "$appRoot\utils"
 # Rutas de scripts
@@ -16,6 +16,14 @@ if (-not (Test-Path $listaScriptPath)) {
     Write-Error "Error: Script no encontrado: $listaScriptPath"
     exit 1
 }
+
+# Elegir host compatible: PowerShell 7 si existe, si no Windows PowerShell
+$shellPath = "powershell.exe"
+$pwshCommand = Get-Command pwsh.exe -ErrorAction SilentlyContinue
+if ($pwshCommand) {
+    $shellPath = $pwshCommand.Source
+}
+
 # Crear objeto COM para accesos directos
 $ws = New-Object -ComObject WScript.Shell
 # ============================================
@@ -23,15 +31,15 @@ $ws = New-Object -ComObject WScript.Shell
 # ============================================
 $shortcutPath = "$startMenuPath\Lista Ace Stream.lnk"
 $shortcut = $ws.CreateShortcut($shortcutPath)
-$shortcut.TargetPath = "powershell.exe"
-$shortcut.Arguments = "-ExecutionPolicy Bypass -WindowStyle Hidden -File `"$listaScriptPath`""
+$shortcut.TargetPath = $shellPath
+$shortcut.Arguments = "-NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$listaScriptPath`""
 $shortcut.WorkingDirectory = $appRoot
 $shortcut.IconLocation = $iconPath
 $shortcut.WindowStyle = 7  # Minimizado
 $shortcut.Description = "Lanzar lista Ace Stream"
 $shortcut.Save()
 # ============================================
-# Verificación
+# Verificacion
 # ============================================
 Write-Host ""
 if (Test-Path $shortcutPath) {
@@ -41,4 +49,4 @@ else {
     Write-Host "Error al crear 'Lista Ace Stream.lnk'." -ForegroundColor Red
 }
 Write-Host ""
-Write-Host "Ubicación: $startMenuPath" -ForegroundColor Cyan
+Write-Host "Ubicacion: $startMenuPath" -ForegroundColor Cyan

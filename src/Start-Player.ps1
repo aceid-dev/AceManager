@@ -20,13 +20,47 @@
     }
 
     if ($AceId) {
-        # Remove acestream:// prefix if present
-        $AceId = $AceId -replace '^acestream://', ''
-        
+        $rawInput = $AceId.Trim()
+        $decodedInput = $rawInput
+        try {
+            $decodedInput = [System.Uri]::UnescapeDataString($rawInput)
+        }
+        catch {
+            $decodedInput = $rawInput
+        }
+
+        # Accept pure ID, acestream://ID, and URLs containing id=<ID>
+        $idMatch = [regex]::Match(
+            $decodedInput,
+            '(?i)^(?:acestream://)?(?<id>[a-zA-Z0-9]{40})$'
+        )
+
+        if (-not $idMatch.Success) {
+            $idMatch = [regex]::Match(
+                $decodedInput,
+                '(?i)(?:[?&]id=)(?<id>[a-zA-Z0-9]{40})(?:$|[&#/])'
+            )
+        }
+
+        if (-not $idMatch.Success) {
+            $idMatch = [regex]::Match(
+                $decodedInput,
+                '(?i)acestream://(?<id>[a-zA-Z0-9]{40})(?:$|[^a-zA-Z0-9])'
+            )
+        }
+
+        if ($idMatch.Success) {
+            $AceId = $idMatch.Groups['id'].Value
+        }
+        else {
+            $AceId = $decodedInput
+        }
+
         # Validate that AceId is exactly 40 alphanumeric characters
         if ($AceId -notmatch '^[a-zA-Z0-9]{40}$') {
             Write-Warning "Invalid Ace Stream ID. Must be exactly 40 alphanumeric characters."
-            Write-Host "Provided ID: $AceId (Length: $($AceId.Length))"
+            Write-Host "Provided value: $rawInput"
+            Write-Host "Resolved ID: $AceId (Length: $($AceId.Length))"
             return
         }
 

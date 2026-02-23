@@ -11,7 +11,7 @@
         Start-Process -FilePath $enginePath -WindowStyle Hidden
 
         Write-Host "Waiting for engine to start..."
-        # Esperar hasta 15 segundos mÃ¡ximo
+        # Esperar hasta 15 segundos maximo
         $timeout = 15
         $count = 0
         while ($count -lt $timeout -and $null -eq (Get-Process -Name ace_engine -ErrorAction SilentlyContinue)) {

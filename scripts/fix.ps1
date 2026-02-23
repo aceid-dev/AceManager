@@ -14,21 +14,21 @@ function Write-LogInfo {
     Write-Host "$Message`n" -ForegroundColor Cyan
 }
 
-# --- CONFIGURACIÓN INICIAL ---
+# --- CONFIGURACION INICIAL ---
 $configPath = Join-Path $env:APPDATA "ACEstream\manager"
 $configFile = "config.ini"
 $filePath   = Join-Path $configPath $configFile
 
 $lists = @('lista_acestream', 'lista_Icastresana', 'lista_ramses')
 
-# Guardar política actual y ajustar temporalmente
+# Guardar politica actual y ajustar temporalmente
 $currentPolicy = Get-ExecutionPolicy
 if ($currentPolicy -ne 'RemoteSigned') {
     Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned -Force
 }
 
 # ---------------------------------------------------------
-# Función: Muestra los valores actuales de dominio y lista
+# Funcion: Muestra los valores actuales de dominio y lista
 # ---------------------------------------------------------
 function Show-CurrentConfig {
     if (-not (Test-Path -Path $filePath)) {
@@ -44,18 +44,18 @@ function Show-CurrentConfig {
     if ($dominioMatch.Success) {
         Write-LogInfo "Dominio actual: $($dominioMatch.Groups[1].Value.Trim())"
     } else {
-        Write-LogWarning "No se encontró clave 'dominio'."
+        Write-LogWarning "No se encontro clave 'dominio'."
     }
 
     if ($listaMatch.Success) {
         Write-LogInfo "Lista actual:   $($listaMatch.Groups[1].Value.Trim())"
     } else {
-        Write-LogWarning "No se encontró clave 'lista'."
+        Write-LogWarning "No se encontro clave 'lista'."
     }
 }
 
 # ---------------------------------------------------------
-# Función auxiliar: Actualiza o añade una clave en el ini
+# Funcion auxiliar: Actualiza o anade una clave en el ini
 # ---------------------------------------------------------
 function Update-IniKey {
     param(
@@ -69,17 +69,17 @@ function Update-IniKey {
         $newContent = [regex]::Replace($content, "^\s*$Key\s*=\s*.+", "$Key = $Value", [System.Text.RegularExpressions.RegexOptions]::Multiline)
     } else {
         $newContent = $content.TrimEnd() + "`n$Key = $Value`n"
-        Write-LogWarning "Clave '$Key' no existía. Se ha añadido al final."
+        Write-LogWarning "Clave '$Key' no existia. Se ha anadido al final."
     }
 
     if ($content -ne $newContent) {
-        Set-Content -Path $filePath -Value $newContent
+        Set-Content -Path $filePath -Value $newContent -Encoding ASCII
         Write-LogInfo "Actualizado: $Key = $Value"
     }
 }
 
 # ---------------------------------------------------------
-# Función: Cambiar rápidamente entre listas predefinidas (1-6)
+# Funcion: Cambiar rapidamente entre listas predefinidas (1-6)
 # ---------------------------------------------------------
 function Set-ListChange {
     param([int]$choice)
@@ -91,7 +91,7 @@ function Set-ListChange {
 }
 
 # ---------------------------------------------------------
-# Opción 7: Solo introducir URL completa → separa y aplica dominio + lista
+# Opcion 7: Solo introducir URL completa -> separa y aplica dominio + lista
 # ---------------------------------------------------------
 function Set-ReplacementAutomatic {
     while ($true) {
@@ -99,7 +99,7 @@ function Set-ReplacementAutomatic {
         $input = $input.Trim()
 
         if ([string]::IsNullOrWhiteSpace($input)) {
-            Write-LogError "No puedes dejarlo vacío."
+            Write-LogError "No puedes dejarlo vacio."
             continue
         }
 
@@ -111,7 +111,7 @@ function Set-ReplacementAutomatic {
         try {
             $uri = [System.Uri]::new($input)
 
-            # Construir la base URL (scheme + host + port si no es estándar)
+            # Construir la base URL (scheme + host + port si no es estandar)
             $baseUrl = $uri.Scheme + "://" + $uri.Host
             if ($uri.Port -ne -1 -and 
                 -not (($uri.Scheme -eq "http" -and $uri.Port -eq 80) -or 
@@ -122,14 +122,14 @@ function Set-ReplacementAutomatic {
             # Obtener la ruta completa
             $fullPath = $uri.AbsolutePath
             
-            # Encontrar la última barra para separar directorio de archivo
+            # Encontrar la ultima barra para separar directorio de archivo
             $lastSlashIndex = $fullPath.LastIndexOf('/')
             
             if ($lastSlashIndex -eq -1) {
                 # No hay barra, toda la ruta es el archivo
                 $fileName = $fullPath
             } elseif ($lastSlashIndex -eq 0) {
-                # Archivo en la raíz (ej: /fichero.m3u)
+                # Archivo en la raiz (ej: /fichero.m3u)
                 $fileName = $fullPath.Substring(1)
             } else {
                 # Hay directorios (ej: /ruta/fichero.m3u)
@@ -139,8 +139,8 @@ function Set-ReplacementAutomatic {
             }
 
             if ([string]::IsNullOrWhiteSpace($fileName)) {
-                Write-LogError "La URL no termina con un nombre de archivo válido."
-                Write-LogInfo "Ejemplos válidos:"
+                Write-LogError "La URL no termina con un nombre de archivo valido."
+                Write-LogInfo "Ejemplos validos:"
                 Write-LogInfo "  https://bit.ly/asdf1234"
                 Write-LogInfo "  https://midominio.com/fichero.m3u"
                 Write-LogInfo "  https://servidor.com/ruta/lista.m3u"
@@ -152,7 +152,7 @@ function Set-ReplacementAutomatic {
             Update-IniKey -Key "lista"   -Value $fileName
 
             Write-Host ""
-            Write-LogInfo "¡URL aplicada correctamente!"
+            Write-LogInfo "URL aplicada correctamente."
             Write-LogInfo "   dominio = $baseUrl"
             Write-LogInfo "   lista   = $fileName"
 
@@ -161,7 +161,7 @@ function Set-ReplacementAutomatic {
         }
         catch {
             Write-LogError "Error al procesar la URL: $($_.Exception.Message)"
-            Write-LogInfo "Ejemplos válidos:"
+            Write-LogInfo "Ejemplos validos:"
             Write-LogInfo "  https://bit.ly/asdf1234"
             Write-LogInfo "  https://midominio.com/fichero.m3u"
             Write-LogInfo "  https://servidor.com/ruta/lista.m3u"
@@ -171,7 +171,7 @@ function Set-ReplacementAutomatic {
 }
 
 # ---------------------------------------------------------
-# Función: Mostrar menú
+# Funcion: Mostrar menu
 # ---------------------------------------------------------
 function Show-Menu {
     Clear-Host
@@ -181,8 +181,8 @@ function Show-Menu {
     Write-Host "-----------------------------------"
     for ($i = 0; $i -lt $lists.Count; $i++) {
         $others = $lists | Where-Object { $_ -ne $lists[$i] }
-        Write-Host "$($i * 2 + 1). '$($lists[$i])' → '$($others[0])'"
-        Write-Host "$($i * 2 + 2). '$($lists[$i])' → '$($others[1])'"
+        Write-Host "$($i * 2 + 1). '$($lists[$i])' -> '$($others[0])'"
+        Write-Host "$($i * 2 + 2). '$($lists[$i])' -> '$($others[1])'"
     }
     Write-Host ""
     Write-Host "7. Introducir nueva URL completa"
@@ -203,14 +203,14 @@ function Invoke-ChoiceHandler {
             return $false
         }
         default         {
-            Read-Host "Opción inválida. Pulsa Enter para continuar..." | Out-Null
+            Read-Host "Opcion invalida. Pulsa Enter para continuar..." | Out-Null
         }
     }
     return $true
 }
 
 # ---------------------------------------------------------
-# VERIFICACIÓN DE ARCHIVO
+# VERIFICACION DE ARCHIVO
 # ---------------------------------------------------------
 if (-not (Test-Path -Path $filePath)) {
     Write-LogError "El archivo '$filePath' no existe."
@@ -225,9 +225,9 @@ if (-not (Test-Path -Path $filePath)) {
 $continue = $true
 while ($continue) {
     Show-Menu
-    $choice = Read-Host "`nElige una opción"
+    $choice = Read-Host "`nElige una opcion"
     $continue = Invoke-ChoiceHandler $choice
 }
 
-# Restaurar política original
+# Restaurar politica original
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy $currentPolicy -Force

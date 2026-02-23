@@ -26,6 +26,10 @@ Este conjunto de scripts proporciona una interfaz de menú interactiva para gest
 
 ## Uso
 
+## Build
+
+La documentacion completa de compilacion esta en `docs/BUILD.md`.
+
 ### Ejecución Principal
 
 ```powershell

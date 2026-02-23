@@ -38,10 +38,18 @@ if (-not $isAdmin) {
         $MyInvocation.MyCommand.ScriptBlock.ToString() | Out-File -FilePath $scriptPath -Encoding UTF8
     }
     
+    $hostExe = "powershell.exe"
+    if ($PSVersionTable.PSEdition -eq "Core") {
+        $pwshCommand = Get-Command pwsh.exe -ErrorAction SilentlyContinue
+        if ($pwshCommand) {
+            $hostExe = $pwshCommand.Source
+        }
+    }
+
     $arguments = "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "`"$scriptPath`""
     
     try {
-        Start-Process powershell.exe -ArgumentList $arguments -Verb RunAs
+        Start-Process -FilePath $hostExe -ArgumentList $arguments -Verb RunAs
         # Cerrar esta ventana inmediatamente para dejar solo la nueva
         Start-Sleep -Milliseconds 500
         exit
@@ -227,7 +235,7 @@ try {
             # Verificar Ace Stream
             if (-not $aceComplete -and (Test-Path $ACE_DEST)) {
                 $aceComplete = $true
-                Write-Host "  [✓] Ace Stream instalado correctamente" -ForegroundColor Green
+                Write-Host "  [OK] Ace Stream instalado correctamente" -ForegroundColor Green
             }
             
             # Verificar VLC
@@ -235,7 +243,7 @@ try {
                 foreach ($path in $vlcPaths) {
                     if (Test-Path $path) { 
                         $vlcComplete = $true
-                        Write-Host "  [✓] VLC instalado correctamente" -ForegroundColor Green
+                        Write-Host "  [OK] VLC instalado correctamente" -ForegroundColor Green
                         break
                     }
                 }
@@ -267,7 +275,7 @@ try {
                 $hasErrors = $true
             }
             else {
-                Write-Host "  [✓] Ace Stream verificado" -ForegroundColor Green
+                Write-Host "  [OK] Ace Stream verificado" -ForegroundColor Green
             }
         }
         
@@ -321,11 +329,11 @@ try {
             $bytes[0x15] = $bytes[0x15] -bor 0x20
             [System.IO.File]::WriteAllBytes($shortcutInfo.Path, $bytes)
             
-            Write-Host "    [✓] $($shortcutInfo.Name)" -ForegroundColor Green
+            Write-Host "    [OK] $($shortcutInfo.Name)" -ForegroundColor Green
             $successCount++
         }
         catch {
-            Write-Host "    [✗] $($shortcutInfo.Name): $($_.Exception.Message)" -ForegroundColor Yellow
+            Write-Host "    [X] $($shortcutInfo.Name): $($_.Exception.Message)" -ForegroundColor Yellow
         }
     }
     

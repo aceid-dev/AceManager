@@ -20,17 +20,12 @@ $MainMenu = {
 
 Clear-Host
 
-# Iniciar el engine automáticamente al abrir la aplicación
-Write-Host "Initializing Ace Stream Engine..." -ForegroundColor Cyan
-Start-AceEngine | Out-Null
-Write-Host ""
-
 do { 
     Invoke-Command $MainMenu
     $Select = Read-Host
 
     if (($Select -eq "") -or ($Select -notmatch "^[0-4]$")) {
-        Read-Host "Opción inválida. Pulsa Enter para continuar..." | Out-Null
+        Read-Host "Opcion invalida. Pulsa Enter para continuar..." | Out-Null
         Clear-Host
     }
     else {
