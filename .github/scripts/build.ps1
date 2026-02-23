@@ -187,6 +187,7 @@ try {
         Build-Target -Files @(
             "src/functions/pause.ps1",
             "src/Start-AceEngine.ps1",
+            "src/Start-Player.ps1",
             "utils/lista_acestream.ps1"
         ) -OutputName "ListaAceStream" -IconPath "$repoRoot/icons/icon.ico" -Title "Lista AceStream Launcher" -NoConsole
     }

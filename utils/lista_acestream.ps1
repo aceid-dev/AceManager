@@ -51,32 +51,42 @@ function Stop-SilentExecution {
     exit 1
 }
 
-function Start-AceEngineSilent {
+function Import-SrcFunctions {
     param(
-        [int]$TimeoutSeconds = 15
+        [string]$BasePath
     )
 
-    if (Get-Process -Name "ace_engine" -ErrorAction SilentlyContinue) {
-        return $true
+    $candidateSrcRoots = @()
+    if (-not [string]::IsNullOrWhiteSpace($PSScriptRoot)) {
+        $candidateSrcRoots += (Join-Path $PSScriptRoot "..\src")
+    }
+    if (-not [string]::IsNullOrWhiteSpace($BasePath)) {
+        $candidateSrcRoots += (Join-Path $BasePath "..\src")
+        $candidateSrcRoots += (Join-Path $BasePath "src")
+    }
+    if (-not [string]::IsNullOrWhiteSpace($env:APPDATA)) {
+        $candidateSrcRoots += (Join-Path $env:APPDATA "ACEStream\manager\src")
     }
 
-    $enginePath = Join-Path $env:APPDATA "ACEStream\engine\ace_engine.exe"
-    if (-not (Test-Path -LiteralPath $enginePath)) {
-        return $false
-    }
+    $scriptsToImport = @(
+        "Start-AceEngine.ps1",
+        "Start-Player.ps1"
+    )
+    $importedScripts = @{}
 
-    Start-Process -FilePath $enginePath -WindowStyle Hidden -ErrorAction Stop | Out-Null
+    foreach ($srcRoot in ($candidateSrcRoots | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -Unique)) {
+        foreach ($scriptName in $scriptsToImport) {
+            if ($importedScripts.ContainsKey($scriptName)) {
+                continue
+            }
 
-    $elapsed = 0
-    while ($elapsed -lt $TimeoutSeconds) {
-        if (Get-Process -Name "ace_engine" -ErrorAction SilentlyContinue) {
-            return $true
+            $scriptPath = Join-Path $srcRoot $scriptName
+            if (Test-Path -LiteralPath $scriptPath) {
+                . $scriptPath
+                $importedScripts[$scriptName] = $true
+            }
         }
-        Start-Sleep -Seconds 1
-        $elapsed++
     }
-
-    return $false
 }
 
 function Get-AceStreamIdFromInput {
@@ -90,7 +100,6 @@ function Get-AceStreamIdFromInput {
 
     $candidate = $InputValue.Trim()
 
-    # Caso directo: ID puro o acestream://ID
     $directMatch = [regex]::Match(
         $candidate,
         "^(?:acestream://)?(?<id>[A-Za-z0-9]{40})$",
@@ -100,7 +109,6 @@ function Get-AceStreamIdFromInput {
         return $directMatch.Groups["id"].Value
     }
 
-    # Decodificar por si viene como URL encoded
     try {
         $decoded = [System.Uri]::UnescapeDataString($candidate)
     }
@@ -108,7 +116,6 @@ function Get-AceStreamIdFromInput {
         $decoded = $candidate
     }
 
-    # URL tipo VLC: ...?id=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     $queryMatch = [regex]::Match(
         $decoded,
         "(?i)(?:[?&]id=)(?<id>[A-Za-z0-9]{40})(?:$|[&#/])"
@@ -117,7 +124,6 @@ function Get-AceStreamIdFromInput {
         return $queryMatch.Groups["id"].Value
     }
 
-    # Texto con acestream://ID incrustado
     $schemeMatch = [regex]::Match(
         $decoded,
         "(?i)acestream://(?<id>[A-Za-z0-9]{40})(?:$|[^A-Za-z0-9])"
@@ -129,7 +135,60 @@ function Get-AceStreamIdFromInput {
     return $null
 }
 
+function Get-VlcPath {
+    $vlcCandidates = @()
+    if ($env:ProgramFiles) {
+        $vlcCandidates += (Join-Path $env:ProgramFiles "VideoLAN\VLC\vlc.exe")
+    }
+    if (${env:ProgramFiles(x86)}) {
+        $vlcCandidates += (Join-Path ${env:ProgramFiles(x86)} "VideoLAN\VLC\vlc.exe")
+    }
+
+    foreach ($candidate in $vlcCandidates) {
+        if (-not [string]::IsNullOrWhiteSpace($candidate) -and (Test-Path -LiteralPath $candidate)) {
+            return $candidate
+        }
+    }
+
+    return $null
+}
+
+function Start-AcePlayback {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$AceId
+    )
+
+    $startPlayerCommand = Get-Command -Name "Start-Player" -CommandType Function -ErrorAction SilentlyContinue
+    if (-not $startPlayerCommand) {
+        return $false
+    }
+
+    $defaultVlcPath = $null
+    if (-not [string]::IsNullOrWhiteSpace($env:ProgramFiles)) {
+        $defaultVlcPath = Join-Path $env:ProgramFiles "VideoLAN\VLC\vlc.exe"
+    }
+
+    if ([string]::IsNullOrWhiteSpace($defaultVlcPath) -or (-not (Test-Path -LiteralPath $defaultVlcPath))) {
+        return $false
+    }
+
+    Start-Player -AceId $AceId | Out-Null
+    return $true
+}
+
 try {
+    try {
+        Import-SrcFunctions -BasePath $scriptBase
+    }
+    catch {
+        Stop-SilentExecution -Message "Error al dot-sourcear funciones desde src." -ErrorRecord $_
+    }
+
+    if (-not (Get-Command -Name "Start-AceEngine" -CommandType Function -ErrorAction SilentlyContinue)) {
+        Stop-SilentExecution -Message "No se encontro la funcion Start-AceEngine en src." -ErrorRecord $null
+    }
+
     # Buscar config.ini en rutas candidatas
     $iniCandidates = @(
         (Join-Path $scriptBase "config.ini"),
@@ -177,33 +236,28 @@ try {
     }
 
     try {
-        $engineStarted = Start-AceEngineSilent -TimeoutSeconds 15
+        $engineStarted = [bool](Start-AceEngine)
     }
     catch {
-        Stop-SilentExecution -Message "Excepcion al iniciar Ace Engine en modo silencioso." -ErrorRecord $_
+        Stop-SilentExecution -Message "Excepcion al iniciar Ace Engine." -ErrorRecord $_
     }
 
     if (-not $engineStarted) {
-        Stop-SilentExecution -Message "Ace Engine no pudo iniciarse en modo silencioso." -ErrorRecord $null
+        Stop-SilentExecution -Message "Ace Engine no pudo iniciarse." -ErrorRecord $null
     }
 
-    # Resolver VLC
-    $vlcCandidates = @()
-    if ($env:ProgramFiles) {
-        $vlcCandidates += (Join-Path $env:ProgramFiles "VideoLAN\VLC\vlc.exe")
-    }
-    if (${env:ProgramFiles(x86)}) {
-        $vlcCandidates += (Join-Path ${env:ProgramFiles(x86)} "VideoLAN\VLC\vlc.exe")
-    }
-
-    $vlcPath = $null
-    foreach ($candidate in $vlcCandidates) {
-        if (-not [string]::IsNullOrWhiteSpace($candidate) -and (Test-Path -LiteralPath $candidate)) {
-            $vlcPath = $candidate
-            break
+    if ($aceId) {
+        try {
+            if (Start-AcePlayback -AceId $aceId) {
+                exit 0
+            }
+        }
+        catch {
+            Stop-SilentExecution -Message "Excepcion al reproducir Ace ID con Start-Player." -ErrorRecord $_
         }
     }
 
+    $vlcPath = Get-VlcPath
     if (-not $vlcPath) {
         Stop-SilentExecution -Message "VLC no encontrado en Program Files." -ErrorRecord $null
     }
