@@ -1,6 +1,6 @@
 {
   "branches": [
-    "main"
+    "python"
   ],
   "plugins": [
     "@semantic-release/commit-analyzer",
@@ -27,12 +27,12 @@
             },
             {
               "type": "refactor",
-              "section": "♻️ Refactorización",
+              "section": "♻️ Refactorizacion",
               "release": false
             },
             {
               "type": "docs",
-              "section": "📝 Documentación",
+              "section": "📝 Documentacion",
               "release": false
             },
             {
@@ -47,7 +47,7 @@
             },
             {
               "type": "ci",
-              "section": "🤖 Integración continua",
+              "section": "🤖 Integracion continua",
               "release": false
             },
             {
@@ -62,7 +62,7 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "powershell ./.github/scripts/build.ps1 -AppVersion ${nextRelease.version}.0"
+        "prepareCmd": "python ./.github/scripts/build.py --app-version ${nextRelease.version}.0"
       }
     ],
     [
