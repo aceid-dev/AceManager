@@ -48,6 +48,22 @@ def find_first(base_dir: Path, pattern: str) -> Path | None:
     return None
 
 
+def find_ace_installer(base_dir: Path) -> Path | None:
+    ignored_names = {
+        "acemanager.exe",
+        "listaacestream.exe",
+        "installer.exe",
+        "fixconfig.exe",
+    }
+    for candidate in sorted(base_dir.glob("*Ace*Stream*.exe")):
+        if not candidate.is_file():
+            continue
+        if candidate.name.lower() in ignored_names:
+            continue
+        return candidate
+    return None
+
+
 def vlc_installed() -> bool:
     if winreg is None:
         return False
@@ -66,6 +82,24 @@ def vlc_installed() -> bool:
                 continue
 
     return False
+
+
+def ace_engine_installed(appdata: Path) -> bool:
+    engine_path = appdata / "ACEStream" / "engine" / "ace_engine.exe"
+    return engine_path.exists()
+
+
+def ask_yes_no(question: str, *, default: bool = True) -> bool:
+    suffix = "[S/n]" if default else "[s/N]"
+    while True:
+        answer = input(f"{question} {suffix}: ").strip().lower()
+        if not answer:
+            return default
+        if answer in {"s", "si", "y", "yes"}:
+            return True
+        if answer in {"n", "no"}:
+            return False
+        log_warning("Respuesta invalida. Escribe 's' o 'n'.")
 
 
 def escape_ps(value: str) -> str:
@@ -124,6 +158,7 @@ def main() -> int:
     appdata = Path(os.environ.get("APPDATA", ""))
     ace_dest = appdata / "ACEStream"
     acemanager_dest = ace_dest / "AceManager.exe"
+    lista_dest = ace_dest / "ListaAceStream.exe"
     start_menu = appdata / "Microsoft" / "Windows" / "Start Menu" / "Programs"
     desktop = Path(os.environ.get("USERPROFILE", str(Path.home()))) / "Desktop"
 
@@ -135,18 +170,26 @@ def main() -> int:
     try:
         log_step("[1/4] Buscando archivos necesarios...")
 
-        ace_installer = find_first(base_dir, "*Ace*Stream*.exe")
+        ace_already_installed = ace_engine_installed(appdata)
+        vlc_already_installed = vlc_installed()
+
+        ace_installer = find_ace_installer(base_dir)
         vlc_installer = find_first(base_dir, "vlc*.exe")
         acemanager_src = find_first(base_dir, "AceManager.exe")
+        lista_src = find_first(base_dir, "ListaAceStream.exe")
 
         missing = []
-        if not ace_installer:
-            missing.append("Instalador de Ace Stream (Ace_Stream*.exe)")
+        if ace_already_installed:
+            log_info("Ace Stream ya esta instalado; se omite requisito del instalador")
+        elif not ace_installer:
+            missing.append("Instalador de Ace Stream (Ace_Stream*.exe) [requerido]")
         else:
             log_success(f"Encontrado: {ace_installer.name}")
 
-        if not vlc_installer:
-            missing.append("Instalador de VLC (vlc*.exe)")
+        if vlc_already_installed:
+            log_info("VLC ya esta instalado; se omite requisito del instalador")
+        elif not vlc_installer:
+            missing.append("Instalador de VLC (vlc*.exe) [requerido]")
         else:
             log_success(f"Encontrado: {vlc_installer.name}")
 
@@ -154,6 +197,11 @@ def main() -> int:
             missing.append("AceManager.exe")
         else:
             log_success(f"Encontrado: {acemanager_src.name}")
+
+        if not lista_src:
+            missing.append("ListaAceStream.exe")
+        else:
+            log_success(f"Encontrado: {lista_src.name}")
 
         if missing:
             log_error("Faltan archivos necesarios:")
@@ -164,17 +212,14 @@ def main() -> int:
         log_success("Todos los archivos se encontraron correctamente")
 
         log_step("[2/4] Verificando instalaciones...")
-        ace_installed = ace_dest.exists()
-        vlc_already_installed = vlc_installed()
-
-        if ace_installed:
+        if ace_already_installed:
             log_info("Ace Stream ya esta instalado")
         if vlc_already_installed:
             log_info("VLC ya esta instalado")
 
-        if not ace_installed or not vlc_already_installed:
+        if not ace_already_installed or not vlc_already_installed:
             log_step("[3/4] Instalando software necesario...")
-            if not ace_installed and ace_installer:
+            if not ace_already_installed and ace_installer:
                 log_info("Iniciando instalacion de Ace Stream...")
                 subprocess.Popen([str(ace_installer)])
 
@@ -185,14 +230,14 @@ def main() -> int:
             timeout_seconds = 300
             elapsed = 0
             check_interval = 3
-            ace_complete = ace_installed
+            ace_complete = ace_already_installed
             vlc_complete = vlc_already_installed
 
             while (not ace_complete or not vlc_complete) and elapsed < timeout_seconds:
                 time.sleep(check_interval)
                 elapsed += check_interval
 
-                if not ace_complete and ace_dest.exists():
+                if not ace_complete and ace_engine_installed(appdata):
                     ace_complete = True
                     log_success("Ace Stream instalado correctamente")
 
@@ -211,7 +256,7 @@ def main() -> int:
             if not ace_complete:
                 log_warning("Ace Stream requiere atencion manual")
                 wait_keypress("Completa la instalacion y pulsa Enter cuando termines...")
-                if not ace_dest.exists():
+                if not ace_engine_installed(appdata):
                     log_error("Ace Stream no se instalo correctamente")
                     has_errors = True
 
@@ -220,10 +265,36 @@ def main() -> int:
         else:
             log_info("[3/4] Software ya instalado, se omite este paso")
 
-        log_step("[4/4] Instalando AceManager...")
+        log_step("[4/4] Instalando/actualizando ejecutables...")
         ace_dest.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(acemanager_src, acemanager_dest)
-        log_success(f"AceManager.exe copiado a: {ace_dest}")
+
+        if acemanager_dest.exists():
+            should_update_acemanager = ask_yes_no(
+                "AceManager.exe ya existe. Deseas actualizarlo?",
+                default=True,
+            )
+            if should_update_acemanager:
+                shutil.copy2(acemanager_src, acemanager_dest)
+                log_success(f"AceManager.exe actualizado en: {ace_dest}")
+            else:
+                log_info("Se conserva la version existente de AceManager.exe")
+        else:
+            shutil.copy2(acemanager_src, acemanager_dest)
+            log_success(f"AceManager.exe instalado en: {ace_dest}")
+
+        if lista_dest.exists():
+            should_update_lista = ask_yes_no(
+                "ListaAceStream.exe ya existe. Deseas actualizarlo?",
+                default=True,
+            )
+            if should_update_lista:
+                shutil.copy2(lista_src, lista_dest)
+                log_success(f"ListaAceStream.exe actualizado en: {ace_dest}")
+            else:
+                log_info("Se conserva la version existente de ListaAceStream.exe")
+        else:
+            shutil.copy2(lista_src, lista_dest)
+            log_success(f"ListaAceStream.exe instalado en: {ace_dest}")
 
         log_info("Creando accesos directos...")
         shortcuts = [
