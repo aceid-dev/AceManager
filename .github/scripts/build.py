@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import shutil
 import uuid
 import zipfile
@@ -17,7 +18,7 @@ except ImportError:  # pragma: no cover - dependency check path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 PYI_ROOT = REPO_ROOT / ".pyinstaller"
 
-TARGETS_ALL = {"AceManager", "ListaAceStream"}
+TARGETS_ALL = {"AceManager", "ListaAceStream", "Installer", "FixConfig"}
 
 DEFAULT_CONFIG = """# Configuracion de AceManager
 # Puedes poner el dominio de tu servidor aqui
@@ -185,7 +186,7 @@ def package_release(app_version: str) -> Path:
 
     config_path = ensure_config_ini()
 
-    for file_name in ("AceManager.exe", "ListaAceStream.exe"):
+    for file_name in ("AceManager.exe", "ListaAceStream.exe", "Installer.exe", "FixConfig.exe"):
         source = REPO_ROOT / file_name
         if not source.exists():
             raise FileNotFoundError(f"No se encontro {file_name} para empaquetar")
@@ -217,7 +218,7 @@ def package_release(app_version: str) -> Path:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Compila AceManager y ListaAceStream en EXE autocontenidos (PyInstaller)."
+        description="Compila ejecutables autocontenidos de AceManager, Launcher, Installer y Fix (PyInstaller)."
     )
     parser.add_argument(
         "--app-version",
@@ -228,7 +229,7 @@ def parse_args() -> argparse.Namespace:
         "--targets",
         nargs="+",
         default=["All"],
-        help="Objetivos: All, AceManager, ListaAceStream",
+        help="Objetivos: All, AceManager, ListaAceStream, Installer, FixConfig",
     )
     parser.add_argument(
         "--skip-package",
@@ -239,6 +240,11 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
+    if os.name != "nt":
+        log("[ERROR] La generacion de .exe con este proyecto requiere Windows.")
+        log("[INFO] Ejecuta el build en windows-latest o en un equipo Windows.")
+        return 1
+
     args = parse_args()
 
     try:
@@ -280,6 +286,26 @@ def main() -> int:
                 product_title="Lista AceStream Launcher",
                 app_version=args.app_version,
                 windowed=True,
+            )
+
+        if "Installer" in selected_targets:
+            run_pyinstaller(
+                entry_script=REPO_ROOT / "scripts" / "installer" / "install.py",
+                output_name="Installer",
+                icon_path=REPO_ROOT / "icons" / "launcher.ico",
+                product_title="AceManager Installer",
+                app_version=args.app_version,
+                windowed=False,
+            )
+
+        if "FixConfig" in selected_targets:
+            run_pyinstaller(
+                entry_script=REPO_ROOT / "scripts" / "fix.py",
+                output_name="FixConfig",
+                icon_path=REPO_ROOT / "icons" / "icon.ico",
+                product_title="AceManager Fix Config",
+                app_version=args.app_version,
+                windowed=False,
             )
 
         if should_package:

@@ -9,6 +9,7 @@ Este proyecto genera ejecutables autocontenidos (`.exe`) listos para usar en equ
 - Menu interactivo para iniciar, detener y verificar Ace Stream Engine.
 - Reproduccion de IDs de Ace Stream en VLC.
 - Lanzador auxiliar `ListaAceStream.exe` basado en `config.ini`.
+- Utilidades compiladas: `Installer.exe` y `FixConfig.exe`.
 - Build reproducible con `PyInstaller` y empaquetado `AceManager.zip`.
 - Pipeline de release con Semantic Release.
 
@@ -78,6 +79,8 @@ Salida esperada:
 
 - `AceManager.exe`
 - `ListaAceStream.exe`
+- `Installer.exe`
+- `FixConfig.exe`
 - `AceManager.zip`
 
 ## Configuracion
