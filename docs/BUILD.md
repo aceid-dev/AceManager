@@ -87,3 +87,8 @@ Comando usado por Semantic Release:
 ```bash
 python ./.github/scripts/build.py --app-version ${nextRelease.version}.0
 ```
+
+## Ver tambien
+
+- Instalador: [INSTALLER.md](INSTALLER.md)
+- Fix de config: [FIXCONFIG.md](FIXCONFIG.md)

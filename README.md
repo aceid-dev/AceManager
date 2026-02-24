@@ -63,6 +63,8 @@ python src/stop_ace_engine.py
 python src/check_ace_engine.py
 python src/player.py <ace_id>
 python utils/lista_acestream.py
+python scripts/installer/install.py
+python scripts/fix.py
 ```
 
 ## Build de ejecutables
@@ -82,6 +84,11 @@ Salida esperada:
 - `Installer.exe`
 - `FixConfig.exe`
 - `AceManager.zip`
+
+## Guias adicionales
+
+- Instalador: [docs/INSTALLER.md](docs/INSTALLER.md)
+- Fix de config: [docs/FIXCONFIG.md](docs/FIXCONFIG.md)
 
 ## Configuracion
 
