@@ -4,19 +4,17 @@ from __future__ import annotations
 import argparse
 import os
 import shutil
+import subprocess
+import sys
 import uuid
 import zipfile
 from datetime import datetime
 from pathlib import Path
 
-try:
-    import PyInstaller.__main__ as pyinstaller
-except ImportError:  # pragma: no cover - dependency check path
-    pyinstaller = None
-
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 PYI_ROOT = REPO_ROOT / ".pyinstaller"
+BUILD_VENV = REPO_ROOT / ".venv-build"
+REQUIREMENTS_BUILD = REPO_ROOT / "requirements-build.txt"
 
 TARGETS_ALL = {"AceManager", "ListaAceStream", "Installer", "FixConfig"}
 
@@ -32,6 +30,42 @@ lista = lista_acestream
 
 def log(message: str) -> None:
     print(message)
+
+
+def get_venv_python() -> Path:
+    if os.name == "nt":
+        return BUILD_VENV / "Scripts" / "python.exe"
+    return BUILD_VENV / "bin" / "python"
+
+
+def ensure_build_environment() -> Path:
+    if not REQUIREMENTS_BUILD.exists():
+        raise FileNotFoundError(
+            f"No se encontro el archivo de dependencias: {REQUIREMENTS_BUILD}"
+        )
+
+    venv_python = get_venv_python()
+
+    if not venv_python.exists():
+        log(f"[INFO] Creando entorno virtual de build en: {BUILD_VENV}")
+        subprocess.run(
+            [sys.executable, "-m", "venv", str(BUILD_VENV)],
+            check=True,
+        )
+    else:
+        log(f"[INFO] Entorno virtual detectado: {BUILD_VENV}")
+
+    log("[INFO] Instalando dependencias de build")
+    subprocess.run(
+        [str(venv_python), "-m", "pip", "install", "--upgrade", "pip"],
+        check=True,
+    )
+    subprocess.run(
+        [str(venv_python), "-m", "pip", "install", "-r", str(REQUIREMENTS_BUILD)],
+        check=True,
+    )
+
+    return venv_python
 
 
 def parse_version(version: str) -> tuple[int, int, int, int]:
@@ -112,6 +146,7 @@ VSVersionInfo(
 
 def run_pyinstaller(
     *,
+    python_executable: Path,
     entry_script: Path,
     output_name: str,
     icon_path: Path,
@@ -119,9 +154,9 @@ def run_pyinstaller(
     app_version: str,
     windowed: bool = False,
 ) -> None:
-    if pyinstaller is None:
-        raise RuntimeError(
-            "PyInstaller no esta instalado. Ejecuta: python -m pip install -r requirements-build.txt"
+    if not python_executable.exists():
+        raise FileNotFoundError(
+            f"No se encontro el Python del entorno virtual: {python_executable}"
         )
 
     if not entry_script.exists():
@@ -159,7 +194,11 @@ def run_pyinstaller(
 
     args.append(str(entry_script))
 
-    pyinstaller.run(args)
+    subprocess.run(
+        [str(python_executable), "-m", "PyInstaller", *args],
+        check=True,
+        cwd=REPO_ROOT,
+    )
 
     output_exe = REPO_ROOT / f"{output_name}.exe"
     if not output_exe.exists():
@@ -268,8 +307,11 @@ def main() -> int:
     log(f"[INFO] Empaquetado ZIP: {'habilitado' if should_package else 'omitido'}")
 
     try:
+        build_python = ensure_build_environment()
+
         if "AceManager" in selected_targets:
             run_pyinstaller(
+                python_executable=build_python,
                 entry_script=REPO_ROOT / "src" / "main.py",
                 output_name="AceManager",
                 icon_path=REPO_ROOT / "icons" / "launcher.ico",
@@ -280,6 +322,7 @@ def main() -> int:
 
         if "ListaAceStream" in selected_targets:
             run_pyinstaller(
+                python_executable=build_python,
                 entry_script=REPO_ROOT / "utils" / "lista_acestream.py",
                 output_name="ListaAceStream",
                 icon_path=REPO_ROOT / "icons" / "icon.ico",
@@ -290,6 +333,7 @@ def main() -> int:
 
         if "Installer" in selected_targets:
             run_pyinstaller(
+                python_executable=build_python,
                 entry_script=REPO_ROOT / "scripts" / "installer" / "install.py",
                 output_name="Installer",
                 icon_path=REPO_ROOT / "icons" / "launcher.ico",
@@ -300,6 +344,7 @@ def main() -> int:
 
         if "FixConfig" in selected_targets:
             run_pyinstaller(
+                python_executable=build_python,
                 entry_script=REPO_ROOT / "scripts" / "fix.py",
                 output_name="FixConfig",
                 icon_path=REPO_ROOT / "icons" / "icon.ico",

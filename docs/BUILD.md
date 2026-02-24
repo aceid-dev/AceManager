@@ -15,7 +15,9 @@ Los ejecutables son autocontenidos y no requieren Python en el equipo final.
 - Windows
 - Python 3.10+
 
-Instalar dependencias de build:
+El script de build ahora crea automaticamente `/.venv-build` e instala dependencias desde `requirements-build.txt`.
+
+Instalacion manual (opcional) de dependencias de build:
 
 ```bash
 python -m pip install --upgrade pip
