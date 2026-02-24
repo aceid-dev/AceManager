@@ -8,7 +8,7 @@ if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.check_ace_engine import test_ace_engine
-from src.common import clear_screen, log_step
+from src.common import clear_screen, colorize
 from src.functions.pause import pause
 from src.player import start_player
 from src.start_ace_engine import start_ace_engine
@@ -16,9 +16,9 @@ from src.stop_ace_engine import stop_ace_engine
 
 
 def _show_menu() -> None:
-    log_step("*******************************")
-    log_step("*       Menu Principal        *")
-    log_step("*******************************")
+    print(colorize("PASO", "*******************************"))
+    print(colorize("PASO", "*       Menu Principal        *"))
+    print(colorize("PASO", "*******************************"))
     print()
     print(" 1.) Iniciar Ace Stream Engine")
     print(" 2.) Detener Ace Stream Engine")

@@ -53,6 +53,18 @@ def _format_log(level: str, message: str) -> str:
     return f"{color}{base}{_COLOR_RESET}"
 
 
+def colorize(level: str, message: str) -> str:
+    tag = level.upper().strip() or "INFO"
+    if not _USE_COLOR:
+        return message
+
+    color = _LEVEL_COLORS.get(tag, "")
+    if not color:
+        return message
+
+    return f"{color}{message}{_COLOR_RESET}"
+
+
 def log(level: str, message: str) -> None:
     print(_format_log(level, message))
 
