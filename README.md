@@ -10,7 +10,7 @@ Este proyecto genera ejecutables autocontenidos (`.exe`) listos para usar en equ
 - Reproduccion de IDs de Ace Stream en VLC.
 - Lanzador auxiliar `ListaAceStream.exe` basado en `config.ini`.
 - Utilidades compiladas: `Installer.exe` y `FixConfig.exe`.
-- Build reproducible con `PyInstaller` y empaquetado `AceManager.zip`.
+- Build reproducible con `PyInstaller` y empaquetado parcial en `AceManager.zip`.
 - Pipeline de release con Semantic Release.
 
 ## Requisitos de ejecucion (usuario final)
@@ -29,6 +29,15 @@ No se requiere Python para ejecutar los `.exe` generados.
 ```bash
 python -m pip install -r requirements-build.txt
 ```
+
+## Uso recomendado (usuario final)
+
+Herramientas principales:
+
+- `Installer.exe` para instalar/actualizar AceManager.
+- `AceManager.exe` para gestionar el motor e iniciar reproduccion por ID.
+- `ListaAceStream.exe` para abrir la lista configurada en VLC.
+- `FixConfig.exe` para actualizar `dominio` y `lista` en `config.ini`.
 
 ## Estructura principal
 
@@ -49,7 +58,7 @@ scripts/
   installer/install.py   # Instalador local en Windows
 ```
 
-## Uso desde codigo fuente
+## Uso desde codigo fuente (desarrollo)
 
 ```bash
 python src/main.py
@@ -84,6 +93,16 @@ Salida esperada:
 - `Installer.exe`
 - `FixConfig.exe`
 - `AceManager.zip`
+- `FixConfig.zip`
+
+Contenido de `AceManager.zip`:
+
+- `ListaAceStream.exe`
+- `config.ini`
+
+Contenido de `FixConfig.zip`:
+
+- `FixConfig.exe`
 
 ## Guias adicionales
 

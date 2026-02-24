@@ -1,11 +1,11 @@
-# Guia de FixConfig (FixConfig.exe / fix.py)
+# Guia de FixConfig (FixConfig.exe)
 
 Esta guia describe la herramienta para editar `config.ini` de forma interactiva.
 
-Corresponde a:
+La herramienta corresponde a:
 
-- `scripts/fix.py` (codigo fuente)
-- `FixConfig.exe` (binario generado por build)
+- `FixConfig.exe` (herramienta distribuida)
+- `scripts/fix.py` (codigo fuente de la herramienta)
 
 ## Objetivo
 
@@ -18,18 +18,16 @@ en el archivo:
 
 - `%APPDATA%\\ACEstream\\manager\\config.ini`
 
-## Ejecucion
-
-Desde codigo fuente:
-
-```bash
-python scripts/fix.py
-```
-
-Desde binario:
+## Ejecucion recomendada
 
 ```text
 FixConfig.exe
+```
+
+Uso en desarrollo (opcional):
+
+```bash
+python scripts/fix.py
 ```
 
 ## Comportamiento del menu

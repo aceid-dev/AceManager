@@ -430,3 +430,7 @@ temp*.ps1
 # Python build artifacts
 .pyinstaller/
 utils/lista_acestream_error.log
+
+
+
+web/

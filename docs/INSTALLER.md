@@ -1,11 +1,11 @@
-# Guia del Instalador (Installer.exe / install.py)
+# Guia del Instalador (Installer.exe)
 
 Esta guia describe como funciona el instalador de AceManager en Windows.
 
-El instalador corresponde a:
+La herramienta corresponde a:
 
-- `scripts/installer/install.py` (codigo fuente)
-- `Installer.exe` (binario generado por build)
+- `Installer.exe` (herramienta distribuida)
+- `scripts/installer/install.py` (codigo fuente de la herramienta)
 
 ## Objetivo
 
@@ -29,18 +29,16 @@ Requeridos solo si el software aun no esta instalado:
 
 Si Ace Stream y/o VLC ya estan instalados, el instalador omite esos requisitos automaticamente.
 
-## Ejecucion
-
-Desde codigo fuente:
-
-```bash
-python scripts/installer/install.py
-```
-
-Desde binario:
+## Ejecucion recomendada
 
 ```text
 Installer.exe
+```
+
+Uso en desarrollo (opcional):
+
+```bash
+python scripts/installer/install.py
 ```
 
 El instalador solicita elevacion de privilegios (administrador) al inicio.

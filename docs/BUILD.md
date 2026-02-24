@@ -7,6 +7,16 @@ Esta guia explica como generar:
 - `Installer.exe`
 - `FixConfig.exe`
 - `AceManager.zip`
+- `FixConfig.zip`
+
+Contenido de `AceManager.zip`:
+
+- `ListaAceStream.exe`
+- `config.ini`
+
+Contenido de `FixConfig.zip`:
+
+- `FixConfig.exe`
 
 Los ejecutables son autocontenidos y no requieren Python en el equipo final.
 
@@ -15,7 +25,7 @@ Los ejecutables son autocontenidos y no requieren Python en el equipo final.
 - Windows
 - Python 3.10+
 
-El script de build ahora crea automaticamente `/.venv-build` e instala dependencias desde `requirements-build.txt`.
+La herramienta de build ahora crea automaticamente `/.venv-build` e instala dependencias desde `requirements-build.txt`.
 
 Instalacion manual (opcional) de dependencias de build:
 
@@ -39,8 +49,9 @@ Genera por defecto:
 - `Installer.exe`
 - `FixConfig.exe`
 - `AceManager.zip`
+- `FixConfig.zip`
 
-## Parametros del script
+## Parametros de la herramienta de build
 
 `build.py` acepta:
 
@@ -73,13 +84,16 @@ python .github/scripts/build.py --app-version 1.2.3.0
 ## Reglas de empaquetado
 
 - El ZIP solo se crea si se compilan todos los objetivos y no se usa `--skip-package`.
+- El ZIP incluye unicamente `ListaAceStream.exe` y `config.ini`.
+- `FixConfig.zip` incluye unicamente `FixConfig.exe`.
+- `AceManager.exe` y `Installer.exe` se publican como assets independientes en release.
 - Si falta `config.ini`, el build genera uno por defecto.
 - Si `AceManager.zip` esta en uso, se crea `AceManager_<timestamp>.zip`.
 
 ## CI/CD y release
 
 - Workflow: `.github/workflows/build-exe.yml`
-- Script: `.github/scripts/build.py`
+- Herramienta de build: `.github/scripts/build.py`
 - Semantic Release: `.releaserc.json`
 
 Comando usado por Semantic Release:

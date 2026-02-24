@@ -8,7 +8,9 @@ BUILD_VENV = REPO_ROOT / ".venv-build"
 REQUIREMENTS_BUILD = REPO_ROOT / "requirements-build.txt"
 
 TARGETS_ALL = {"AceManager", "ListaAceStream", "Installer", "FixConfig"}
-DIST_EXECUTABLES = ("AceManager.exe", "ListaAceStream.exe", "Installer.exe", "FixConfig.exe")
+ZIP_EXECUTABLES = ("ListaAceStream.exe",)
+RELEASE_STANDALONE_ASSETS = ("AceManager.exe", "Installer.exe")
+FIX_ZIP_ASSET = "FixConfig.zip"
 
 TARGET_SPECS = {
     "AceManager": {
