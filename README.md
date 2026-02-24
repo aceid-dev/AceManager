@@ -89,6 +89,7 @@ Salida esperada:
 
 - Instalador: [docs/INSTALLER.md](docs/INSTALLER.md)
 - Fix de config: [docs/FIXCONFIG.md](docs/FIXCONFIG.md)
+- Lista AceStream: [docs/LISTA_ACESTREAM.md](docs/LISTA_ACESTREAM.md)
 
 ## Configuracion
 
