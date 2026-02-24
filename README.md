@@ -106,7 +106,6 @@ lista = lista_acestream
 
 Reglas de `lista`:
 
-- Si contiene un Ace ID valido (40 chars), usa `http://127.0.0.1:6878/ace/getstream?id=<ID>`.
 - Si es URL completa (`http://` o `https://`), se usa directamente.
 - Si es ruta relativa, se combina con `dominio`.
 
@@ -117,7 +116,6 @@ Reglas de `lista`:
 - VLC no encontrado:
   - Verifica instalacion en Program Files.
 - Stream no reproduce:
-  - Verifica ID valido de 40 caracteres.
   - Verifica que el engine este levantado en `127.0.0.1:6878`.
 
 ## Licencia

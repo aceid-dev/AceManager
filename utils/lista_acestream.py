@@ -10,8 +10,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from src.common import build_stream_url, get_vlc_path, start_detached_process
-from src.player import extract_ace_stream_id, start_player
+from src.common import get_vlc_path, start_detached_process
 from src.start_ace_engine import start_ace_engine
 
 
@@ -91,11 +90,7 @@ def main() -> int:
         if not entrada_lista:
             stop_silent_execution("La clave 'lista' en config.ini esta vacia.")
 
-        ace_id = extract_ace_stream_id(entrada_lista)
-
-        if ace_id:
-            url_final = build_stream_url(ace_id)
-        elif entrada_lista.lower().startswith(("http://", "https://")):
+        if entrada_lista.lower().startswith(("http://", "https://")):
             url_final = entrada_lista
         else:
             if not dominio_base:
@@ -109,13 +104,6 @@ def main() -> int:
 
         if not engine_started:
             stop_silent_execution("Ace Engine no pudo iniciarse.")
-
-        if ace_id:
-            try:
-                if start_player(ace_id=ace_id, prompt_if_missing=False):
-                    return 0
-            except Exception as error:
-                stop_silent_execution("Excepcion al reproducir ID Ace con el reproductor.", error)
 
         vlc_path = get_vlc_path()
         if not vlc_path:
