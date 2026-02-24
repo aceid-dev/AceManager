@@ -11,10 +11,16 @@ class InstallerPaths:
     ace_dest: Path
     acemanager_dest: Path
     lista_dest: Path
+    fix_dest: Path
+    config_dest: Path
     start_menu: Path
     desktop: Path
     link_start: Path
     link_desktop: Path
+    link_start_lista: Path
+    link_desktop_lista: Path
+    link_start_fix: Path
+    link_desktop_fix: Path
 
 
 @dataclass(frozen=True)
@@ -25,3 +31,5 @@ class InstallerDiscovery:
     vlc_installer: Path | None
     acemanager_src: Path | None
     lista_src: Path | None
+    fix_src: Path | None
+    config_src: Path | None

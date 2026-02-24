@@ -25,6 +25,7 @@ def find_ace_installer(base_dir: Path) -> Path | None:
         "listaacestream.exe",
         "installer.exe",
         "fixconfig.exe",
+        "fix.exe",
     }
     for candidate in sorted(base_dir.glob("*Ace*Stream*.exe")):
         if not candidate.is_file():
@@ -68,4 +69,6 @@ def discover_installation(base_dir: Path, appdata: Path) -> InstallerDiscovery:
         vlc_installer=find_first(base_dir, "vlc*.exe"),
         acemanager_src=find_first(base_dir, "AceManager.exe"),
         lista_src=find_first(base_dir, "ListaAceStream.exe"),
+        fix_src=find_first(base_dir, "Fix.exe"),
+        config_src=find_first(base_dir, "config.ini"),
     )

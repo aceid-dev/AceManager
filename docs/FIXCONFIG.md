@@ -1,10 +1,10 @@
-# Guia de FixConfig (FixConfig.exe)
+# Guia de Fix (Fix.exe)
 
 Esta guia describe la herramienta para editar `config.ini` de forma interactiva.
 
 La herramienta corresponde a:
 
-- `FixConfig.exe` (herramienta distribuida)
+- `Fix.exe` (herramienta distribuida)
 - `scripts/fix.py` (codigo fuente de la herramienta)
 
 ## Objetivo
@@ -16,12 +16,14 @@ Permite ajustar rapidamente los valores de:
 
 en el archivo:
 
-- `%APPDATA%\\ACEstream\\manager\\config.ini`
+- `%APPDATA%\\ACEStream\\config.ini` (ruta principal)
 
 ## Ejecucion recomendada
 
+Abre `Fix` desde Menu Inicio o desde el acceso directo del Escritorio.
+
 ```text
-FixConfig.exe
+Fix.exe
 ```
 
 Uso en desarrollo (opcional):
@@ -69,6 +71,10 @@ Validaciones aplicadas:
 
 ## Notas tecnicas
 
+- Orden de busqueda de `config.ini`:
+  - Carpeta del ejecutable `Fix.exe`
+  - `%APPDATA%\\ACEStream\\config.ini`
+  - `%APPDATA%\\ACEStream\\manager\\config.ini` (compatibilidad)
 - Si `dominio` o `lista` no existen en `config.ini`, se anaden al final.
 - Los cambios se guardan en disco en cada actualizacion.
 - Si el archivo no existe, la herramienta finaliza con error.

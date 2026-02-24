@@ -70,20 +70,12 @@
       {
         "assets": [
           {
-            "path": "AceManager.zip",
-            "label": "AceManager.zip"
-          },
-          {
-            "path": "AceManager.exe",
-            "label": "AceManager.exe"
-          },
-          {
             "path": "Installer.exe",
             "label": "Installer.exe"
           },
           {
-            "path": "FixConfig.zip",
-            "label": "FixConfig.zip"
+            "path": "AceManager.zip",
+            "label": "AceManager.zip"
           }
         ]
       }

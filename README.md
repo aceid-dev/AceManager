@@ -8,9 +8,8 @@ Este proyecto genera ejecutables autocontenidos (`.exe`) listos para usar en equ
 
 - Menu interactivo para iniciar, detener y verificar Ace Stream Engine.
 - Reproduccion de IDs de Ace Stream en VLC.
-- Lanzador auxiliar `ListaAceStream.exe` basado en `config.ini`.
-- Utilidades compiladas: `Installer.exe` y `FixConfig.exe`.
-- Build reproducible con `PyInstaller` y empaquetado parcial en `AceManager.zip`.
+- Utilidades compiladas para instalacion y configuracion.
+- Build reproducible con `PyInstaller` y `AceManager.zip`.
 - Pipeline de release con Semantic Release.
 
 ## Requisitos de ejecucion (usuario final)
@@ -36,8 +35,8 @@ Herramientas principales:
 
 - `Installer.exe` para instalar/actualizar AceManager.
 - `AceManager.exe` para gestionar el motor e iniciar reproduccion por ID.
-- `ListaAceStream.exe` para abrir la lista configurada en VLC.
-- `FixConfig.exe` para actualizar `dominio` y `lista` en `config.ini`.
+- `Fix.exe` para actualizar `dominio` y `lista` en `config.ini`.
+- `AceManager.zip` como paquete de distribucion (`AceManager.exe`, `ListaAceStream.exe`, `Fix.exe`, `config.ini`).
 
 ## Estructura principal
 
@@ -91,18 +90,20 @@ Salida esperada:
 - `AceManager.exe`
 - `ListaAceStream.exe`
 - `Installer.exe`
-- `FixConfig.exe`
+- `Fix.exe`
 - `AceManager.zip`
-- `FixConfig.zip`
 
 Contenido de `AceManager.zip`:
 
+- `AceManager.exe`
 - `ListaAceStream.exe`
+- `Fix.exe`
 - `config.ini`
 
-Contenido de `FixConfig.zip`:
+Assets publicados en GitHub Release:
 
-- `FixConfig.exe`
+- `Installer.exe`
+- `AceManager.zip`
 
 ## Guias adicionales
 

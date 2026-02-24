@@ -42,6 +42,8 @@ Reglas:
 
 ## Ejecucion recomendada
 
+Abre `ListaAceStream` desde Menu Inicio o desde el acceso directo del Escritorio.
+
 ```text
 ListaAceStream.exe
 ```

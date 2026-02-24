@@ -7,10 +7,9 @@ PYI_ROOT = REPO_ROOT / ".pyinstaller"
 BUILD_VENV = REPO_ROOT / ".venv-build"
 REQUIREMENTS_BUILD = REPO_ROOT / "requirements-build.txt"
 
-TARGETS_ALL = {"AceManager", "ListaAceStream", "Installer", "FixConfig"}
-ZIP_EXECUTABLES = ("ListaAceStream.exe",)
-RELEASE_STANDALONE_ASSETS = ("AceManager.exe", "Installer.exe")
-FIX_ZIP_ASSET = "FixConfig.zip"
+TARGETS_ALL = {"AceManager", "ListaAceStream", "Installer", "Fix"}
+RELEASE_STANDALONE_ASSETS = ("Installer.exe",)
+ACE_MANAGER_ZIP_ASSET = "AceManager.zip"
 
 TARGET_SPECS = {
     "AceManager": {
@@ -34,11 +33,11 @@ TARGET_SPECS = {
         "product_title": "AceManager Installer",
         "windowed": False,
     },
-    "FixConfig": {
+    "Fix": {
         "entry_script": REPO_ROOT / "scripts" / "fix.py",
-        "output_name": "FixConfig",
+        "output_name": "Fix",
         "icon_path": REPO_ROOT / "icons" / "icon.ico",
-        "product_title": "AceManager Fix Config",
+        "product_title": "AceManager Fix",
         "windowed": False,
     },
 }

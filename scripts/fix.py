@@ -29,9 +29,38 @@ def write_log_success(message: str) -> None:
     log_success(message)
 
 
-CONFIG_PATH = Path(os.environ.get("APPDATA", "")) / "ACEstream" / "manager"
-CONFIG_FILE = CONFIG_PATH / "config.ini"
 LISTS = ["lista_acestream", "lista_Icastresana", "lista_ramses"]
+
+
+def resolve_script_base() -> Path:
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
+
+    if "__file__" in globals():
+        return Path(__file__).resolve().parent
+
+    return Path.cwd()
+
+
+def resolve_config_file() -> Path:
+    script_base = resolve_script_base()
+    appdata = os.environ.get("APPDATA", "")
+
+    candidates = [
+        script_base / "config.ini",
+        Path(appdata) / "ACEStream" / "config.ini",
+        Path(appdata) / "ACEStream" / "manager" / "config.ini",
+        REPO_ROOT / "config.ini",
+    ]
+
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+
+    return candidates[0]
+
+
+CONFIG_FILE = resolve_config_file()
 
 
 def read_config_text() -> str:

@@ -5,7 +5,7 @@ import argparse
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Compila ejecutables autocontenidos de AceManager, Launcher, Installer y Fix (PyInstaller)."
+        description="Compila ejecutables autocontenidos de AceManager, ListaAcestream, Installer y Fix (PyInstaller)."
     )
     parser.add_argument(
         "--app-version",
@@ -16,7 +16,7 @@ def parse_args() -> argparse.Namespace:
         "--targets",
         nargs="+",
         default=["All"],
-        help="Objetivos: All, AceManager, ListaAceStream, Installer, FixConfig",
+        help="Objetivos: All, AceManager, ListaAceStream, Installer, Fix",
     )
     parser.add_argument(
         "--skip-package",

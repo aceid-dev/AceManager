@@ -5,18 +5,15 @@ Esta guia explica como generar:
 - `AceManager.exe`
 - `ListaAceStream.exe`
 - `Installer.exe`
-- `FixConfig.exe`
+- `Fix.exe`
 - `AceManager.zip`
-- `FixConfig.zip`
 
 Contenido de `AceManager.zip`:
 
+- `AceManager.exe`
 - `ListaAceStream.exe`
+- `Fix.exe`
 - `config.ini`
-
-Contenido de `FixConfig.zip`:
-
-- `FixConfig.exe`
 
 Los ejecutables son autocontenidos y no requieren Python en el equipo final.
 
@@ -47,35 +44,36 @@ Genera por defecto:
 - `AceManager.exe`
 - `ListaAceStream.exe`
 - `Installer.exe`
-- `FixConfig.exe`
+- `Fix.exe`
 - `AceManager.zip`
-- `FixConfig.zip`
+
+El empaquetado incluye todo menos el instalador (`Installer.exe`).
 
 ## Parametros de la herramienta de build
 
 `build.py` acepta:
 
 - `--app-version A.B.C.D`: version de archivo de los EXE (por defecto `1.0.0.0`)
-- `--targets All|AceManager|ListaAceStream|Installer|FixConfig`: objetivos a compilar
+- `--targets All|AceManager|ListaAceStream|Installer|Fix`: objetivos a compilar
 - `--skip-package`: omite la generacion del ZIP
 
 Ejemplos:
 
 ```bash
-# Solo ListaAceStream.exe
-python .github/scripts/build.py --targets ListaAceStream
-
 # Solo AceManager.exe
 python .github/scripts/build.py --targets AceManager
 
 # Solo Installer.exe
 python .github/scripts/build.py --targets Installer
 
-# Solo FixConfig.exe
-python .github/scripts/build.py --targets FixConfig
+# Solo ListaAceStream.exe
+python .github/scripts/build.py --targets ListaAceStream
+
+# Solo Fix.exe
+python .github/scripts/build.py --targets Fix
 
 # Ambos EXE sin ZIP
-python .github/scripts/build.py --targets AceManager ListaAceStream --skip-package
+python .github/scripts/build.py --targets AceManager Installer ListaAceStream Fix --skip-package
 
 # Build completo con version explicita
 python .github/scripts/build.py --app-version 1.2.3.0
@@ -84,11 +82,10 @@ python .github/scripts/build.py --app-version 1.2.3.0
 ## Reglas de empaquetado
 
 - El ZIP solo se crea si se compilan todos los objetivos y no se usa `--skip-package`.
-- El ZIP incluye unicamente `ListaAceStream.exe` y `config.ini`.
-- `FixConfig.zip` incluye unicamente `FixConfig.exe`.
-- `AceManager.exe` y `Installer.exe` se publican como assets independientes en release.
+- `AceManager.zip` incluye `AceManager.exe`, `ListaAceStream.exe`, `Fix.exe` y `config.ini`.
+- En GitHub Release se publican: `Installer.exe` y `AceManager.zip`.
 - Si falta `config.ini`, el build genera uno por defecto.
-- Si `AceManager.zip` esta en uso, se crea `AceManager_<timestamp>.zip`.
+- Si un ZIP esta en uso, se genera con sufijo `<timestamp>`.
 
 ## CI/CD y release
 

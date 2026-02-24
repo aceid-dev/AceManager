@@ -1,17 +1,15 @@
 from __future__ import annotations
 
-import shutil
 import uuid
 import zipfile
 from datetime import datetime
 from pathlib import Path
 
 from build_modules.config import (
+    ACE_MANAGER_ZIP_ASSET,
     DEFAULT_CONFIG,
-    FIX_ZIP_ASSET,
     RELEASE_STANDALONE_ASSETS,
     REPO_ROOT,
-    ZIP_EXECUTABLES,
 )
 from build_modules.logging_utils import log
 
@@ -24,71 +22,61 @@ def ensure_config_ini() -> Path:
     return config_path
 
 
-def package_release(app_version: str) -> Path:
-    log("\n>> Iniciando empaquetado ZIP...")
+def _resolve_zip_target(path: Path) -> Path:
+    if path.exists():
+        try:
+            path.unlink()
+        except PermissionError:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            fallback = path.with_stem(f"{path.stem}_{timestamp}")
+            log(f"   [WARN] {path.name} en uso. Se generara: {fallback.name}")
+            return fallback
+    return path
 
-    package_dir = REPO_ROOT / f"AceManager_v{app_version}"
-    if package_dir.exists():
-        shutil.rmtree(package_dir)
-    package_dir.mkdir(parents=True, exist_ok=True)
+
+def _build_zip(zip_name: str, files: list[tuple[str, Path]]) -> Path:
+    zip_path = _resolve_zip_target(REPO_ROOT / zip_name)
+    temp_zip = REPO_ROOT / f"{Path(zip_name).stem}_{uuid.uuid4().hex}.tmp.zip"
+
+    with zipfile.ZipFile(temp_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for arcname, source in files:
+            archive.write(source, arcname=arcname)
+
+    temp_zip.replace(zip_path)
+    return zip_path
+
+
+def package_release(app_version: str) -> Path:
+    log(f"\n>> Iniciando empaquetado de release (version {app_version})...")
 
     config_path = ensure_config_ini()
 
-    for file_name in ZIP_EXECUTABLES:
-        source = REPO_ROOT / file_name
-        if not source.exists():
-            raise FileNotFoundError(f"No se encontro {file_name} para empaquetar")
-        shutil.copy2(source, package_dir / file_name)
-
-    shutil.copy2(config_path, package_dir / "config.ini")
-
-    for file_name in RELEASE_STANDALONE_ASSETS:
+    for file_name in (*RELEASE_STANDALONE_ASSETS, "AceManager.exe", "ListaAceStream.exe", "Fix.exe"):
         source = REPO_ROOT / file_name
         if not source.exists():
             raise FileNotFoundError(f"No se encontro {file_name} para release")
 
-    fix_exe = REPO_ROOT / "FixConfig.exe"
-    if not fix_exe.exists():
-        raise FileNotFoundError("No se encontro FixConfig.exe para generar FixConfig.zip")
-
-    zip_path = REPO_ROOT / "AceManager.zip"
-    temp_zip = REPO_ROOT / f"AceManager_{uuid.uuid4().hex}.tmp.zip"
-
-    if zip_path.exists():
-        try:
-            zip_path.unlink()
-        except PermissionError:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            zip_path = REPO_ROOT / f"AceManager_{timestamp}.zip"
-            log(f"   [WARN] AceManager.zip en uso. Se generara: {zip_path.name}")
-
-    with zipfile.ZipFile(temp_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
-        for item in package_dir.iterdir():
-            archive.write(item, arcname=item.name)
-
-    temp_zip.replace(zip_path)
-    shutil.rmtree(package_dir)
-
-    fix_zip_path = REPO_ROOT / FIX_ZIP_ASSET
-    fix_temp_zip = REPO_ROOT / f"FixConfig_{uuid.uuid4().hex}.tmp.zip"
-
-    if fix_zip_path.exists():
-        try:
-            fix_zip_path.unlink()
-        except PermissionError:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            fix_zip_path = REPO_ROOT / f"FixConfig_{timestamp}.zip"
-            log(f"   [WARN] {FIX_ZIP_ASSET} en uso. Se generara: {fix_zip_path.name}")
-
-    with zipfile.ZipFile(fix_temp_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
-        archive.write(fix_exe, arcname="FixConfig.exe")
-
-    fix_temp_zip.replace(fix_zip_path)
-
-    log(f"   [OK] Paquete ZIP generado: {zip_path.name}")
-    log(f"   [OK] Paquete ZIP generado: {fix_zip_path.name}")
-    log(
-        "   [OK] Assets fuera del ZIP listos: "
-        + ", ".join(RELEASE_STANDALONE_ASSETS)
+    ace_zip_path = _build_zip(
+        ACE_MANAGER_ZIP_ASSET,
+        [
+            ("AceManager.exe", REPO_ROOT / "AceManager.exe"),
+            ("ListaAceStream.exe", REPO_ROOT / "ListaAceStream.exe"),
+            ("Fix.exe", REPO_ROOT / "Fix.exe"),
+            ("config.ini", config_path),
+        ],
     )
-    return zip_path
+
+    legacy_artifacts = [REPO_ROOT / "FixConfig.zip", REPO_ROOT / "ListaAcestream.zip"]
+    for legacy_artifact in legacy_artifacts:
+        if not legacy_artifact.exists():
+            continue
+
+        try:
+            legacy_artifact.unlink()
+            log(f"   [INFO] Artefacto legado eliminado: {legacy_artifact.name}")
+        except OSError:
+            log(f"   [WARN] No se pudo eliminar artefacto legado: {legacy_artifact.name}")
+
+    log(f"   [OK] Paquete ZIP generado: {ace_zip_path.name}")
+    log("   [OK] Assets de release listos: " + ", ".join(RELEASE_STANDALONE_ASSETS))
+    return ace_zip_path

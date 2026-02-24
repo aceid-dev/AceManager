@@ -4,6 +4,7 @@ import os
 import shutil
 import subprocess
 import time
+import zipfile
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -20,6 +21,8 @@ def build_paths(base_dir: Path) -> InstallerPaths:
     ace_dest = appdata / "ACEStream"
     acemanager_dest = ace_dest / "AceManager.exe"
     lista_dest = ace_dest / "ListaAceStream.exe"
+    fix_dest = ace_dest / "Fix.exe"
+    config_dest = ace_dest / "config.ini"
     start_menu = appdata / "Microsoft" / "Windows" / "Start Menu" / "Programs"
     desktop = Path(os.environ.get("USERPROFILE", str(Path.home()))) / "Desktop"
 
@@ -29,11 +32,49 @@ def build_paths(base_dir: Path) -> InstallerPaths:
         ace_dest=ace_dest,
         acemanager_dest=acemanager_dest,
         lista_dest=lista_dest,
+        fix_dest=fix_dest,
+        config_dest=config_dest,
         start_menu=start_menu,
         desktop=desktop,
         link_start=start_menu / "AceManager.lnk",
         link_desktop=desktop / "AceManager.lnk",
+        link_start_lista=start_menu / "ListaAceStream.lnk",
+        link_desktop_lista=desktop / "ListaAceStream.lnk",
+        link_start_fix=start_menu / "Fix.lnk",
+        link_desktop_fix=desktop / "Fix.lnk",
     )
+
+
+def _extract_acemanager_zip(base_dir: Path) -> bool:
+    zip_path = base_dir / "AceManager.zip"
+    if not zip_path.exists():
+        log_info("No se encontro AceManager.zip. Se buscara contenido extraido manualmente.")
+        return False
+
+    log_info("Detectado AceManager.zip. Extrayendo contenido en carpeta actual...")
+    try:
+        with zipfile.ZipFile(zip_path, "r") as archive:
+            extracted_files = 0
+            for member in archive.infolist():
+                if member.is_dir():
+                    continue
+
+                file_name = Path(member.filename).name
+                if not file_name:
+                    continue
+
+                destination = base_dir / file_name
+                with archive.open(member, "r") as source, destination.open("wb") as target:
+                    shutil.copyfileobj(source, target)
+                extracted_files += 1
+
+        log_success(
+            f"AceManager.zip extraido correctamente ({extracted_files} archivos, sin crear carpeta)."
+        )
+        return True
+    except Exception as error:
+        log_error(f"No se pudo extraer AceManager.zip: {error}")
+        raise
 
 
 def _validate_required_files(discovery: InstallerDiscovery) -> list[str]:
@@ -63,20 +104,30 @@ def _validate_required_files(discovery: InstallerDiscovery) -> list[str]:
     else:
         log_success(f"Encontrado: {discovery.lista_src.name}")
 
+    if not discovery.fix_src:
+        missing.append("Fix.exe")
+    else:
+        log_success(f"Encontrado: {discovery.fix_src.name}")
+
+    if not discovery.config_src:
+        missing.append("config.ini")
+    else:
+        log_success(f"Encontrado: {discovery.config_src.name}")
+
     return missing
 
 
 def _install_prerequisites(discovery: InstallerDiscovery, appdata: Path) -> bool:
     has_errors = False
 
-    log_step("[2/4] Verificando instalaciones...")
+    log_step("[3/5] Verificando instalaciones...")
     if discovery.ace_already_installed:
         log_info("Ace Stream ya esta instalado")
     if discovery.vlc_already_installed:
         log_info("VLC ya esta instalado")
 
     if not discovery.ace_already_installed or not discovery.vlc_already_installed:
-        log_step("[3/4] Instalando software necesario...")
+        log_step("[4/5] Instalando software necesario...")
         if not discovery.ace_already_installed and discovery.ace_installer:
             log_info("Iniciando instalacion de Ace Stream...")
             subprocess.Popen([str(discovery.ace_installer)])
@@ -121,7 +172,7 @@ def _install_prerequisites(discovery: InstallerDiscovery, appdata: Path) -> bool
         if not vlc_complete:
             log_warning("VLC puede no estar completamente instalado")
     else:
-        log_info("[3/4] Software ya instalado, se omite este paso")
+        log_info("[4/5] Software ya instalado, se omite este paso")
 
     return has_errors
 
@@ -129,11 +180,16 @@ def _install_prerequisites(discovery: InstallerDiscovery, appdata: Path) -> bool
 def _install_executables(discovery: InstallerDiscovery, paths: InstallerPaths) -> bool:
     has_errors = False
 
-    log_step("[4/4] Instalando/actualizando ejecutables...")
+    log_step("[5/5] Instalando/actualizando ejecutables...")
     paths.ace_dest.mkdir(parents=True, exist_ok=True)
 
-    if discovery.acemanager_src is None or discovery.lista_src is None:
-        raise RuntimeError("Faltan ejecutables requeridos para copiar")
+    if (
+        discovery.acemanager_src is None
+        or discovery.lista_src is None
+        or discovery.fix_src is None
+        or discovery.config_src is None
+    ):
+        raise RuntimeError("Faltan archivos requeridos para copiar")
 
     if paths.acemanager_dest.exists():
         should_update_acemanager = ask_yes_no(
@@ -165,21 +221,85 @@ def _install_executables(discovery: InstallerDiscovery, paths: InstallerPaths) -
         shutil.copy2(discovery.lista_src, paths.lista_dest)
         log_success(f"ListaAceStream.exe instalado en: {paths.ace_dest}")
 
+    if paths.fix_dest.exists():
+        should_update_fix = ask_yes_no(
+            log_warning,
+            "Fix.exe ya existe. Deseas actualizarlo?",
+            default=True,
+        )
+        if should_update_fix:
+            shutil.copy2(discovery.fix_src, paths.fix_dest)
+            log_success(f"Fix.exe actualizado en: {paths.ace_dest}")
+        else:
+            log_info("Se conserva la version existente de Fix.exe")
+    else:
+        shutil.copy2(discovery.fix_src, paths.fix_dest)
+        log_success(f"Fix.exe instalado en: {paths.ace_dest}")
+
+    if paths.config_dest.exists():
+        should_update_config = ask_yes_no(
+            log_warning,
+            "config.ini ya existe. Deseas actualizarlo?",
+            default=True,
+        )
+        if should_update_config:
+            shutil.copy2(discovery.config_src, paths.config_dest)
+            log_success(f"config.ini actualizado en: {paths.ace_dest}")
+        else:
+            log_info("Se conserva la version existente de config.ini")
+    else:
+        shutil.copy2(discovery.config_src, paths.config_dest)
+        log_success(f"config.ini instalado en: {paths.ace_dest}")
+
     log_info("Creando accesos directos...")
     shortcuts = [
-        (paths.link_start, "Menu Inicio"),
-        (paths.link_desktop, "Escritorio"),
+        (
+            paths.link_start,
+            paths.acemanager_dest,
+            "AceManager - Gestor de enlaces Ace Stream",
+            "Menu Inicio (AceManager)",
+        ),
+        (
+            paths.link_desktop,
+            paths.acemanager_dest,
+            "AceManager - Gestor de enlaces Ace Stream",
+            "Escritorio (AceManager)",
+        ),
+        (
+            paths.link_start_lista,
+            paths.lista_dest,
+            "ListaAceStream - Reproductor de lista Ace Stream",
+            "Menu Inicio (ListaAceStream)",
+        ),
+        (
+            paths.link_desktop_lista,
+            paths.lista_dest,
+            "ListaAceStream - Reproductor de lista Ace Stream",
+            "Escritorio (ListaAceStream)",
+        ),
+        (
+            paths.link_start_fix,
+            paths.fix_dest,
+            "Fix - Configuracion de dominio y lista",
+            "Menu Inicio (Fix)",
+        ),
+        (
+            paths.link_desktop_fix,
+            paths.fix_dest,
+            "Fix - Configuracion de dominio y lista",
+            "Escritorio (Fix)",
+        ),
     ]
 
     success = 0
-    for shortcut_path, label in shortcuts:
+    for shortcut_path, target_path, description, label in shortcuts:
         try:
             shortcut_path.parent.mkdir(parents=True, exist_ok=True)
             create_shortcut(
                 shortcut_path,
-                paths.acemanager_dest,
+                target_path,
                 paths.ace_dest,
-                "AceManager - Gestor de enlaces Ace Stream",
+                description,
             )
             log_success(f"Acceso directo creado: {label}")
             success += 1
@@ -198,7 +318,10 @@ def _install_executables(discovery: InstallerDiscovery, paths: InstallerPaths) -
 def run_installation(paths: InstallerPaths) -> bool:
     has_errors = False
 
-    log_step("[1/4] Buscando archivos necesarios...")
+    log_step("[1/5] Preparando archivos del instalador...")
+    extracted_from_zip = _extract_acemanager_zip(paths.base_dir)
+
+    log_step("[2/5] Buscando archivos necesarios...")
     discovery = discover_installation(paths.base_dir, paths.appdata)
 
     missing = _validate_required_files(discovery)
@@ -206,6 +329,13 @@ def run_installation(paths: InstallerPaths) -> bool:
         log_error("Faltan archivos necesarios:")
         for item in missing:
             log_error(f"- {item}")
+        if not extracted_from_zip:
+            log_error(
+                "No se encontro AceManager.zip ni los archivos extraidos en la misma carpeta del instalador."
+            )
+            log_error(
+                "Coloca AceManager.zip junto a Installer.exe o extrae su contenido en esa misma carpeta."
+            )
         raise RuntimeError("Archivos faltantes")
 
     log_success("Todos los archivos se encontraron correctamente")
