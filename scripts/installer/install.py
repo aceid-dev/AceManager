@@ -8,6 +8,12 @@ import sys
 import time
 from pathlib import Path
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from src.common import log_error, log_info, log_step, log_success, log_warning
+
 if os.name == "nt":
     import winreg
 else:  # pragma: no cover - only executed outside Windows
@@ -28,10 +34,9 @@ def elevate() -> None:
         raise RuntimeError("No se pudo elevar privilegios")
 
 
-def wait_keypress(message: str = "Presione cualquier tecla para continuar...") -> None:
+def wait_keypress(message: str = "Presiona Enter para continuar...") -> None:
     print()
-    print(message)
-    print()
+    log_info(message)
     input()
 
 
@@ -92,29 +97,29 @@ def create_shortcut(path: Path, target: Path, working_dir: Path, description: st
 
 def main() -> int:
     if os.name != "nt":
-        print("Este instalador solo es compatible con Windows.")
+        log_error("Este instalador solo es compatible con Windows.")
         return 1
 
     if not is_admin():
         try:
+            log_step("Elevando privilegios de administrador...")
             elevate()
             return 0
         except Exception as error:
-            print("ERROR: No se pudo elevar privilegios")
-            print(error)
+            log_error("No se pudo elevar privilegios")
+            log_error(str(error))
             wait_keypress()
             return 1
 
-    print("==========================================")
-    print("  INSTALADOR ACEMANAGER")
-    print("==========================================")
+    log_step("==========================================")
+    log_step("INSTALADOR ACEMANAGER")
+    log_step("==========================================")
 
     base_dir = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
     if not base_dir.exists() or any(token in str(base_dir) for token in ("System32", "Temp")):
         base_dir = Path.home() / "Downloads"
 
-    print(f"Buscando archivos en: {base_dir}")
-    print()
+    log_info(f"Buscando archivos en: {base_dir}")
 
     appdata = Path(os.environ.get("APPDATA", ""))
     ace_dest = appdata / "ACEStream"
@@ -128,7 +133,7 @@ def main() -> int:
     has_errors = False
 
     try:
-        print("[1/4] Buscando archivos necesarios...")
+        log_step("[1/4] Buscando archivos necesarios...")
 
         ace_installer = find_first(base_dir, "*Ace*Stream*.exe")
         vlc_installer = find_first(base_dir, "vlc*.exe")
@@ -136,45 +141,45 @@ def main() -> int:
 
         missing = []
         if not ace_installer:
-            missing.append("Ace Stream installer (Ace_Stream*.exe)")
+            missing.append("Instalador de Ace Stream (Ace_Stream*.exe)")
         else:
-            print(f"  Encontrado: {ace_installer.name}")
+            log_success(f"Encontrado: {ace_installer.name}")
 
         if not vlc_installer:
-            missing.append("VLC installer (vlc*.exe)")
+            missing.append("Instalador de VLC (vlc*.exe)")
         else:
-            print(f"  Encontrado: {vlc_installer.name}")
+            log_success(f"Encontrado: {vlc_installer.name}")
 
         if not acemanager_src:
             missing.append("AceManager.exe")
         else:
-            print(f"  Encontrado: {acemanager_src.name}")
+            log_success(f"Encontrado: {acemanager_src.name}")
 
         if missing:
-            print("\nERROR: Faltan archivos necesarios:")
+            log_error("Faltan archivos necesarios:")
             for item in missing:
-                print(f"  - {item}")
+                log_error(f"- {item}")
             raise RuntimeError("Archivos faltantes")
 
-        print("\n  Todos los archivos encontrados correctamente!")
+        log_success("Todos los archivos se encontraron correctamente")
 
-        print("\n[2/4] Verificando instalaciones...")
+        log_step("[2/4] Verificando instalaciones...")
         ace_installed = ace_dest.exists()
         vlc_already_installed = vlc_installed()
 
         if ace_installed:
-            print("  Ace Stream ya esta instalado")
+            log_info("Ace Stream ya esta instalado")
         if vlc_already_installed:
-            print("  VLC ya esta instalado")
+            log_info("VLC ya esta instalado")
 
         if not ace_installed or not vlc_already_installed:
-            print("\n[3/4] Instalando software necesario...")
+            log_step("[3/4] Instalando software necesario...")
             if not ace_installed and ace_installer:
-                print("  Iniciando instalacion de Ace Stream...")
+                log_info("Iniciando instalacion de Ace Stream...")
                 subprocess.Popen([str(ace_installer)])
 
             if not vlc_already_installed and vlc_installer:
-                print("  Iniciando instalacion de VLC (modo silencioso)...")
+                log_info("Iniciando instalacion de VLC (modo silencioso)...")
                 subprocess.Popen([str(vlc_installer), "/S"])
 
             timeout_seconds = 300
@@ -189,11 +194,11 @@ def main() -> int:
 
                 if not ace_complete and ace_dest.exists():
                     ace_complete = True
-                    print("  [OK] Ace Stream instalado correctamente")
+                    log_success("Ace Stream instalado correctamente")
 
                 if not vlc_complete and vlc_installed():
                     vlc_complete = True
-                    print("  [OK] VLC instalado correctamente")
+                    log_success("VLC instalado correctamente")
 
                 if (not ace_complete or not vlc_complete) and elapsed % 15 == 0:
                     waiting = []
@@ -201,26 +206,26 @@ def main() -> int:
                         waiting.append("Ace Stream")
                     if not vlc_complete:
                         waiting.append("VLC")
-                    print(f"  Esperando: {', '.join(waiting)}... ({elapsed} seg)")
+                    log_info(f"Esperando: {', '.join(waiting)}... ({elapsed} seg)")
 
             if not ace_complete:
-                print("\nATENCION: Ace Stream requiere atencion manual")
-                wait_keypress("Complete la instalacion y pulse Enter cuando termine...")
+                log_warning("Ace Stream requiere atencion manual")
+                wait_keypress("Completa la instalacion y pulsa Enter cuando termines...")
                 if not ace_dest.exists():
-                    print("ERROR: Ace Stream no se instalo correctamente")
+                    log_error("Ace Stream no se instalo correctamente")
                     has_errors = True
 
             if not vlc_complete:
-                print("Advertencia: VLC puede no estar completamente instalado")
+                log_warning("VLC puede no estar completamente instalado")
         else:
-            print("\n[3/4] Software ya instalado, saltando...")
+            log_info("[3/4] Software ya instalado, se omite este paso")
 
-        print("\n[4/4] Instalando AceManager...")
+        log_step("[4/4] Instalando AceManager...")
         ace_dest.mkdir(parents=True, exist_ok=True)
         shutil.copy2(acemanager_src, acemanager_dest)
-        print(f"  AceManager.exe copiado a: {ace_dest}")
+        log_success(f"AceManager.exe copiado a: {ace_dest}")
 
-        print("  Creando accesos directos...")
+        log_info("Creando accesos directos...")
         shortcuts = [
             (link_start, "Menu Inicio"),
             (link_desktop, "Escritorio"),
@@ -236,31 +241,27 @@ def main() -> int:
                     ace_dest,
                     "AceManager - Gestor de enlaces Ace Stream",
                 )
-                print(f"    [OK] {label}")
+                log_success(f"Acceso directo creado: {label}")
                 success += 1
             except Exception as error:
-                print(f"    [X] {label}: {error}")
+                log_warning(f"No se pudo crear acceso directo ({label}): {error}")
 
         if success == 0:
-            print("  No se pudieron crear accesos directos automaticamente")
+            log_warning("No se pudieron crear accesos directos automaticamente")
         elif success < len(shortcuts):
-            print("  Algunos accesos directos se crearon correctamente")
+            log_warning("Solo algunos accesos directos se crearon correctamente")
 
     except Exception as error:
-        print("\n==========================================")
-        print("  ERROR CRITICO DURANTE LA INSTALACION")
-        print("==========================================")
-        print(error)
+        log_error("ERROR CRITICO DURANTE LA INSTALACION")
+        log_error(str(error))
         has_errors = True
 
-    print("\n==========================================")
     if has_errors:
-        print("Revise los mensajes anteriores")
+        log_warning("Instalacion finalizada con advertencias")
     else:
-        print("Instalacion completa")
-    print("==========================================")
+        log_success("Instalacion finalizada correctamente")
 
-    wait_keypress("Presione cualquier tecla para cerrar...")
+    wait_keypress("Pulsa Enter para cerrar...")
     return 0 if not has_errors else 1
 
 

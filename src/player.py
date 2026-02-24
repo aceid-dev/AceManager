@@ -9,7 +9,16 @@ from urllib.parse import unquote
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.common import build_stream_url, get_vlc_path, is_process_running, start_detached_process, terminate_process
+from src.common import (
+    build_stream_url,
+    get_vlc_path,
+    is_process_running,
+    log_info,
+    log_success,
+    log_warning,
+    start_detached_process,
+    terminate_process,
+)
 
 
 ACE_ID_PATTERNS = (
@@ -37,7 +46,7 @@ def extract_ace_stream_id(input_value: str | None) -> str | None:
 
 def stop_existing_vlc() -> None:
     if is_process_running("vlc"):
-        print("Stopping existing VLC instance...")
+        log_info("Deteniendo instancia de VLC en ejecucion...")
         terminate_process("vlc")
 
 
@@ -45,10 +54,10 @@ def start_player(ace_id: str | None = None, *, prompt_if_missing: bool = True) -
     stop_existing_vlc()
 
     if not ace_id and prompt_if_missing:
-        ace_id = input("Enter Ace Stream ID: ").strip()
+        ace_id = input("Introduce el ID de Ace Stream: ").strip()
 
     if not ace_id:
-        print("No Ace Stream ID provided")
+        log_warning("No se proporciono un ID de Ace Stream")
         return False
 
     raw_input = ace_id.strip()
@@ -57,28 +66,28 @@ def start_player(ace_id: str | None = None, *, prompt_if_missing: bool = True) -
         resolved_id = unquote(raw_input)
 
     if not re.fullmatch(r"[a-zA-Z0-9]{40}", resolved_id):
-        print("WARNING: Invalid Ace Stream ID. Must be exactly 40 alphanumeric characters.")
-        print(f"Provided value: {raw_input}")
-        print(f"Resolved ID: {resolved_id} (Length: {len(resolved_id)})")
+        log_warning("ID de Ace Stream invalido. Debe tener 40 caracteres alfanumericos.")
+        log_info(f"Valor recibido: {raw_input}")
+        log_info(f"ID resuelto: {resolved_id} (Longitud: {len(resolved_id)})")
         return False
 
     vlc_path = get_vlc_path()
     if not vlc_path:
-        print("WARNING: VLC not found in Program Files")
+        log_warning("No se encontro VLC en Program Files")
         return False
 
     stream_url = build_stream_url(resolved_id)
     if not start_detached_process(vlc_path, [stream_url]):
-        print("WARNING: Failed to launch VLC")
+        log_warning("No se pudo iniciar VLC")
         return False
 
-    print(f"Starting stream with ID: {resolved_id}")
+    log_success(f"Iniciando stream con ID: {resolved_id}")
     return True
 
 
 def _parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Launch VLC with an Ace Stream ID")
-    parser.add_argument("ace_id", nargs="?", help="Ace Stream ID or URL containing id=<ID>")
+    parser = argparse.ArgumentParser(description="Inicia VLC con un ID de Ace Stream")
+    parser.add_argument("ace_id", nargs="?", help="ID de Ace Stream o URL que contenga id=<ID>")
     return parser.parse_args()
 
 

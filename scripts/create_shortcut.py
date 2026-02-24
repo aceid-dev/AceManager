@@ -2,7 +2,14 @@ from __future__ import annotations
 
 import os
 import subprocess
+import sys
 from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from src.common import log_error, log_info, log_success
 
 
 def escape_ps(value: str) -> str:
@@ -28,7 +35,7 @@ def create_shortcut(shortcut_path: Path, target_path: Path, working_dir: Path, d
 
 def main() -> int:
     if os.name != "nt":
-        print("Este script solo es compatible con Windows.")
+        log_error("Este script solo es compatible con Windows.")
         return 1
 
     appdata = Path(os.environ.get("APPDATA", ""))
@@ -39,7 +46,7 @@ def main() -> int:
     shortcut = start_menu / "Lista Ace Stream.lnk"
 
     if not target.exists():
-        print(f"Error: ejecutable no encontrado: {target}")
+        log_error(f"Ejecutable no encontrado: {target}")
         return 1
 
     shortcut.parent.mkdir(parents=True, exist_ok=True)
@@ -51,11 +58,11 @@ def main() -> int:
     )
 
     if shortcut.exists():
-        print("El acceso directo 'Lista Ace Stream.lnk' se ha creado correctamente.")
-        print(f"Ubicacion: {shortcut.parent}")
+        log_success("El acceso directo 'Lista Ace Stream.lnk' se creo correctamente.")
+        log_info(f"Ubicacion: {shortcut.parent}")
         return 0
 
-    print("Error al crear 'Lista Ace Stream.lnk'.")
+    log_error("Error al crear 'Lista Ace Stream.lnk'.")
     return 1
 
 

@@ -8,7 +8,7 @@ if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.check_ace_engine import test_ace_engine
-from src.common import clear_screen
+from src.common import clear_screen, log_step
 from src.functions.pause import pause
 from src.player import start_player
 from src.start_ace_engine import start_ace_engine
@@ -16,15 +16,15 @@ from src.stop_ace_engine import stop_ace_engine
 
 
 def _show_menu() -> None:
-    print(" ***************************")
-    print(" *           Menu          *")
-    print(" ***************************")
+    log_step("*******************************")
+    log_step("*       Menu Principal        *")
+    log_step("*******************************")
     print()
-    print(" 1.) Start Ace Stream Engine")
-    print(" 2.) Stop Ace Stream Engine")
-    print(" 3.) Check Ace Stream Engine")
-    print(" 4.) Play Ace Stream ID")
-    print(" 0.) Quit")
+    print(" 1.) Iniciar Ace Stream Engine")
+    print(" 2.) Detener Ace Stream Engine")
+    print(" 3.) Verificar Ace Stream Engine")
+    print(" 4.) Reproducir ID de Ace Stream")
+    print(" 0.) Salir")
     print()
 
 
@@ -34,7 +34,7 @@ def run_menu() -> None:
     selection = ""
     while selection != "0":
         _show_menu()
-        selection = input("Select an option and press Enter: ").strip()
+        selection = input("Selecciona una opcion y pulsa Enter: ").strip()
 
         if not re.fullmatch(r"[0-4]", selection):
             input("Opcion invalida. Pulsa Enter para continuar...")

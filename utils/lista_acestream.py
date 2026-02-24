@@ -115,7 +115,7 @@ def main() -> int:
                 if start_player(ace_id=ace_id, prompt_if_missing=False):
                     return 0
             except Exception as error:
-                stop_silent_execution("Excepcion al reproducir Ace ID con Start-Player.", error)
+                stop_silent_execution("Excepcion al reproducir ID Ace con el reproductor.", error)
 
         vlc_path = get_vlc_path()
         if not vlc_path:

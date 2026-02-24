@@ -6,7 +6,13 @@ from pathlib import Path
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.common import is_process_running, normalize_image_name, terminate_process
+from src.common import (
+    is_process_running,
+    log_info,
+    log_success,
+    normalize_image_name,
+    terminate_process,
+)
 
 
 PROCESS_NAMES = ("ace_engine", "ace_update", "ace_player")
@@ -22,14 +28,14 @@ def stop_ace_engine() -> None:
             continue
 
         any_running = True
-        print(f"Stopping {process_name}...")
+        log_info(f"Deteniendo {process_name}...")
         if terminate_process(image):
             any_stopped = True
 
     if not any_running:
-        print("Ace Stream Engine is not running")
+        log_info("Ace Stream Engine no esta en ejecucion")
     elif any_stopped:
-        print("Ace Stream Engine stopped")
+        log_success("Ace Stream Engine detenido")
 
 
 if __name__ == "__main__":

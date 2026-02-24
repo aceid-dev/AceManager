@@ -2,20 +2,31 @@ from __future__ import annotations
 
 import os
 import re
+import sys
 from pathlib import Path
 from urllib.parse import urlparse
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from src.common import clear_screen, log_error, log_info, log_step, log_success, log_warning
+
 
 def write_log_error(message: str) -> None:
-    print(f"{message}\n")
+    log_error(message)
 
 
 def write_log_warning(message: str) -> None:
-    print(f"{message}\n")
+    log_warning(message)
 
 
 def write_log_info(message: str) -> None:
-    print(f"{message}\n")
+    log_info(message)
+
+
+def write_log_success(message: str) -> None:
+    log_success(message)
 
 
 CONFIG_PATH = Path(os.environ.get("APPDATA", "")) / "ACEstream" / "manager"
@@ -59,7 +70,7 @@ def update_ini_key(key: str, value: str) -> None:
 
     if content != new_content:
         CONFIG_FILE.write_text(new_content, encoding="ascii", errors="ignore")
-        write_log_info(f"Actualizado: {key} = {value}")
+        write_log_success(f"Actualizado: {key} = {value}")
 
 
 def set_list_change(choice: int) -> None:
@@ -109,7 +120,7 @@ def set_replacement_automatic() -> None:
         update_ini_key("lista", file_name)
 
         print()
-        write_log_info("URL aplicada correctamente.")
+        write_log_success("URL aplicada correctamente.")
         write_log_info(f"   dominio = {base_url}")
         write_log_info(f"   lista   = {file_name}")
         input("\nPulsa Enter para continuar...")
@@ -117,10 +128,10 @@ def set_replacement_automatic() -> None:
 
 
 def show_menu() -> None:
-    os.system("cls" if os.name == "nt" else "clear")
+    clear_screen()
     show_current_config()
-    print("\n-----------------------------------")
-    print("     Cambiar lista de canales")
+    print()
+    log_step("Cambiar lista de canales")
     print("-----------------------------------")
 
     for index, source in enumerate(LISTS):
@@ -147,7 +158,8 @@ def invoke_choice_handler(choice: str) -> bool:
         write_log_info("Saliendo...")
         return False
 
-    input("Opcion invalida. Pulsa Enter para continuar...")
+    write_log_warning("Opcion invalida.")
+    input("Pulsa Enter para continuar...")
     return True
 
 

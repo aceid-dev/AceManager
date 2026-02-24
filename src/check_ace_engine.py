@@ -6,20 +6,20 @@ from pathlib import Path
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.common import is_process_running
+from src.common import is_process_running, log_info, log_warning
 from src.start_ace_engine import start_ace_engine
 
 
 def test_ace_engine(*, prompt_user: bool = True) -> bool:
     if is_process_running("ace_engine"):
-        print("Engine is running")
+        log_info("El motor esta en ejecucion")
         return True
 
-    print("Engine is NOT running")
+    log_warning("El motor NO esta en ejecucion")
     if not prompt_user:
         return False
 
-    decision = input("Do you want to start engine? [Y/n]: ").strip().lower()
+    decision = input("Quieres iniciar el motor? [S/n]: ").strip().lower()
     if decision in {"", "y", "yes", "s", "si"}:
         return start_ace_engine()
 
