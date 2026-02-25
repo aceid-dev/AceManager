@@ -7,9 +7,12 @@ on:
       - "src/**"
       - "utils/**"
       - "scripts/**"
+      - "icons/**"
+      - ".pyinstaller/**"
       - "config.ini"
       - "requirements-build.txt"
-      - ".github/scripts/build.py"
+      - ".github/scripts/**"
+      - ".github/workflows/**"
       - ".releaserc.json"
   workflow_dispatch:
 
