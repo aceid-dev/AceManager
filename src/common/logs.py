@@ -32,7 +32,21 @@ def _enable_windows_ansi() -> bool:
     return True
 
 
-_USE_COLOR = sys.stdout.isatty() and _enable_windows_ansi()
+def _is_tty(stream: object | None) -> bool:
+    if stream is None:
+        return False
+
+    isatty = getattr(stream, "isatty", None)
+    if not callable(isatty):
+        return False
+
+    try:
+        return bool(isatty())
+    except Exception:
+        return False
+
+
+_USE_COLOR = _is_tty(sys.stdout) and _enable_windows_ansi()
 
 
 def _normalize_level(level: str) -> str:

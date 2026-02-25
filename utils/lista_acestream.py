@@ -66,6 +66,9 @@ def parse_ini_config(path: Path) -> dict[str, str]:
 def find_config_ini() -> Path | None:
     candidates = [SCRIPT_BASE / "config.ini"]
 
+    if not getattr(sys, "frozen", False):
+        candidates.append(REPO_ROOT / "config.ini")
+
     appdata = os.environ.get("APPDATA")
     if appdata:
         candidates.append(Path(appdata) / "ACEStream" / "manager" / "config.ini")
