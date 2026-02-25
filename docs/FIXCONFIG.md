@@ -42,10 +42,12 @@ Al iniciar:
 
 Opciones:
 
-- `1` a `6`: intercambios directos entre:
+- `1` a `N`: intercambios rapidos validos para la `lista` actual.
+- Las listas predefinidas son:
   - `lista_acestream`
   - `lista_Icastresana`
   - `lista_ramses`
+- Si la `lista` actual no coincide con una predefinida, no se muestran opciones rapidas.
 - `7`: introduce una URL completa (`http://` o `https://`)
 - `0`: salir
 

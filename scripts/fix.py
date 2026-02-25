@@ -67,6 +67,42 @@ def read_config_text() -> str:
     return CONFIG_FILE.read_text(encoding="utf-8", errors="ignore")
 
 
+def get_current_list_value() -> str | None:
+    content = read_config_text()
+    lista_match = re.search(r"^\s*lista\s*=\s*(.+)", content, flags=re.MULTILINE)
+    if not lista_match:
+        return None
+
+    current_value = lista_match.group(1).strip()
+    if not current_value:
+        return None
+
+    return current_value
+
+
+def resolve_known_list(value: str | None) -> str | None:
+    if not value:
+        return None
+
+    value_normalized = value.casefold()
+    for known_list in LISTS:
+        if known_list.casefold() == value_normalized:
+            return known_list
+
+    return None
+
+
+def build_available_list_changes() -> tuple[str | None, dict[str, str]]:
+    current_list = get_current_list_value()
+    source = resolve_known_list(current_list)
+    if not source:
+        return current_list, {}
+
+    destinations = [item for item in LISTS if item != source]
+    options = {str(index): destination for index, destination in enumerate(destinations, start=1)}
+    return source, options
+
+
 def show_current_config() -> None:
     if not CONFIG_FILE.exists():
         write_log_error(f"Archivo NO ENCONTRADO: {CONFIG_FILE}")
@@ -74,15 +110,15 @@ def show_current_config() -> None:
 
     content = read_config_text()
     dominio_match = re.search(r"^\s*dominio\s*=\s*(.+)", content, flags=re.MULTILINE)
-    lista_match = re.search(r"^\s*lista\s*=\s*(.+)", content, flags=re.MULTILINE)
+    current_list = get_current_list_value()
 
     if dominio_match:
         write_log_info(f"Dominio actual: {dominio_match.group(1).strip()}")
     else:
         write_log_warning("No se encontro clave 'dominio'.")
 
-    if lista_match:
-        write_log_info(f"Lista actual:   {lista_match.group(1).strip()}")
+    if current_list:
+        write_log_info(f"Lista actual:   {current_list}")
     else:
         write_log_warning("No se encontro clave 'lista'.")
 
@@ -102,10 +138,7 @@ def update_ini_key(key: str, value: str) -> None:
         write_log_success(f"Actualizado: {key} = {value}")
 
 
-def set_list_change(choice: int) -> None:
-    idx = (choice - 1) // 2
-    others = [item for item in LISTS if item != LISTS[idx]]
-    destination = others[(choice - 1) % 2]
+def set_list_change(destination: str) -> None:
     update_ini_key("lista", destination)
     input("\nPulsa Enter para continuar...")
 
@@ -156,27 +189,35 @@ def set_replacement_automatic() -> None:
         return
 
 
-def show_menu() -> None:
+def show_menu() -> dict[str, str]:
     clear_screen()
     show_current_config()
     print()
     log_step("Cambiar lista de canales")
     print("-----------------------------------")
 
-    for index, source in enumerate(LISTS):
-        others = [item for item in LISTS if item != source]
-        print(f"{index * 2 + 1}. '{source}' -> '{others[0]}'")
-        print(f"{index * 2 + 2}. '{source}' -> '{others[1]}'")
+    source, available_changes = build_available_list_changes()
+    if available_changes:
+        for option, destination in available_changes.items():
+            print(f"{option}. '{source}' -> '{destination}'")
+    else:
+        if source:
+            write_log_warning(f"No hay cambios rapidos disponibles para '{source}'.")
+        else:
+            write_log_warning("No hay cambios rapidos disponibles para la lista actual.")
+            write_log_info("Usa la opcion 7 para introducir una URL completa.")
 
     print()
     print("7. Introducir nueva URL completa")
     print("0. Salir")
     print("-----------------------------------")
+    return available_changes
 
 
-def invoke_choice_handler(choice: str) -> bool:
-    if choice in {"1", "2", "3", "4", "5", "6"}:
-        set_list_change(int(choice))
+def invoke_choice_handler(choice: str, available_changes: dict[str, str]) -> bool:
+    destination = available_changes.get(choice)
+    if destination:
+        set_list_change(destination)
         return True
 
     if choice == "7":
@@ -200,9 +241,9 @@ def main() -> int:
 
     keep_running = True
     while keep_running:
-        show_menu()
+        available_changes = show_menu()
         choice = input("\nElige una opcion: ").strip()
-        keep_running = invoke_choice_handler(choice)
+        keep_running = invoke_choice_handler(choice, available_changes)
 
     return 0
 
