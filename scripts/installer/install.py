@@ -12,7 +12,7 @@ if str(REPO_ROOT) not in sys.path:
 if str(INSTALLER_DIR) not in sys.path:
     sys.path.insert(0, str(INSTALLER_DIR))
 
-from src.common import log_error, log_info, log_step, log_success, log_warning
+from src.functions import log_error, log_info, log_step, log_success, log_warning
 from installer_flow import build_paths, run_installation
 from installer_system import elevate, is_admin, resolve_base_dir, wait_keypress
 

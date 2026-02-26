@@ -6,7 +6,7 @@ from pathlib import Path
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.common import (
+from src.functions import (
     is_process_running,
     log_info,
     log_success,

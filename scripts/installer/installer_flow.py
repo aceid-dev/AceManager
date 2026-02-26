@@ -9,7 +9,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
-from src.common import log_error, log_info, log_step, log_success, log_warning
+from src.functions import log_error, log_info, log_step, log_success, log_warning
 from installer_discovery import ace_engine_installed, discover_installation, vlc_installed
 from installer_shortcuts import create_shortcut
 from installer_system import ask_yes_no, wait_keypress

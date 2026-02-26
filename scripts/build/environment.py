@@ -5,8 +5,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-from build_modules.config import BUILD_VENV, REQUIREMENTS_BUILD
-from build_modules.logging_utils import log
+from build.config import BUILD_VENV, REQUIREMENTS_BUILD
+from build.logging_utils import log
 
 
 def get_venv_python() -> Path:

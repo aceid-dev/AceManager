@@ -8,7 +8,7 @@ if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.check_ace_engine import test_ace_engine
-from src.common import clear_screen, colorize
+from src.functions import clear_screen, colorize
 from src.functions.pause import pause
 from src.player import start_player
 from src.start_ace_engine import start_ace_engine

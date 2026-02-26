@@ -5,13 +5,17 @@ import sys
 import traceback
 from datetime import datetime
 from pathlib import Path
+from typing import NoReturn
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
-
-from src.common import get_vlc_path, start_detached_process
-from src.start_ace_engine import start_ace_engine
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+try:
+    from src.functions import get_vlc_path, start_detached_process
+    from src.start_ace_engine import start_ace_engine
+except ImportError:
+    if str(PROJECT_ROOT) not in sys.path:
+        sys.path.insert(0, str(PROJECT_ROOT))
+    from src.functions import get_vlc_path, start_detached_process
+    from src.start_ace_engine import start_ace_engine
 
 
 def resolve_script_base() -> Path:
@@ -67,7 +71,7 @@ def find_config_ini() -> Path | None:
     candidates = [SCRIPT_BASE / "config.ini"]
 
     if not getattr(sys, "frozen", False):
-        candidates.append(REPO_ROOT / "config.ini")
+        candidates.append(PROJECT_ROOT / "config.ini")
 
     appdata = os.environ.get("APPDATA")
     if appdata:

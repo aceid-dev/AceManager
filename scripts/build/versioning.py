@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from build_modules.config import PYI_ROOT
+from build.config import PYI_ROOT
 
 
 def parse_version(version: str) -> tuple[int, int, int, int]:

@@ -9,7 +9,7 @@ from urllib.parse import unquote
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.common import (
+from src.functions import (
     build_stream_url,
     get_vlc_path,
     is_process_running,

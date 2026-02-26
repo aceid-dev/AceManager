@@ -36,7 +36,7 @@ python -m pip install -r requirements-build.txt
 Desde la raiz del repo:
 
 ```bash
-python .github/scripts/build.py
+python scripts/build/build.py
 ```
 
 Genera por defecto:
@@ -61,22 +61,22 @@ Ejemplos:
 
 ```bash
 # Solo AceManager.exe
-python .github/scripts/build.py --targets AceManager
+python scripts/build/build.py --targets AceManager
 
 # Solo Installer.exe
-python .github/scripts/build.py --targets Installer
+python scripts/build/build.py --targets Installer
 
 # Solo ListaAceStream.exe
-python .github/scripts/build.py --targets ListaAceStream
+python scripts/build/build.py --targets ListaAceStream
 
 # Solo Fix.exe
-python .github/scripts/build.py --targets Fix
+python scripts/build/build.py --targets Fix
 
 # Ambos EXE sin ZIP
-python .github/scripts/build.py --targets AceManager Installer ListaAceStream Fix --skip-package
+python scripts/build/build.py --targets AceManager Installer ListaAceStream Fix --skip-package
 
 # Build completo con version explicita
-python .github/scripts/build.py --app-version 1.2.3.0
+python scripts/build/build.py --app-version 1.2.3.0
 ```
 
 ## Reglas de empaquetado
@@ -90,13 +90,13 @@ python .github/scripts/build.py --app-version 1.2.3.0
 ## CI/CD y release
 
 - Workflow: `.github/workflows/build-exe.yml`
-- Herramienta de build: `.github/scripts/build.py`
+- Herramienta de build: `scripts/build/build.py`
 - Semantic Release: `.releaserc.json`
 
 Comando usado por Semantic Release:
 
 ```bash
-python ./.github/scripts/build.py --app-version ${nextRelease.version}.0
+python ./scripts/build/build.py --app-version ${nextRelease.version}.0
 ```
 
 ## Ver tambien

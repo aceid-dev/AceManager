@@ -5,13 +5,13 @@ import zipfile
 from datetime import datetime
 from pathlib import Path
 
-from build_modules.config import (
+from build.config import (
     ACE_MANAGER_ZIP_ASSET,
     DEFAULT_CONFIG,
     RELEASE_STANDALONE_ASSETS,
     REPO_ROOT,
 )
-from build_modules.logging_utils import log
+from build.logging_utils import log
 
 
 def ensure_config_ini() -> Path:

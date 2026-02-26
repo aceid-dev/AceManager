@@ -10,7 +10,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from src.common import clear_screen, log_error, log_info, log_step, log_success, log_warning
+from src.functions import clear_screen, log_error, log_info, log_step, log_success, log_warning
 
 
 def write_log_error(message: str) -> None:

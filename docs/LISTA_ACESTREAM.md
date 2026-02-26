@@ -5,7 +5,7 @@ Esta guia documenta el lanzador de listas Ace Stream.
 La herramienta corresponde a:
 
 - `ListaAceStream.exe` (herramienta distribuida)
-- `utils/lista_acestream.py` (codigo fuente de la herramienta)
+- `src/functions/lista_acestream.py` (codigo fuente de la herramienta)
 
 ## Objetivo
 
@@ -20,7 +20,8 @@ Iniciar reproduccion en VLC a partir de `config.ini`:
 La herramienta busca `config.ini` en este orden:
 
 1. Misma carpeta de la herramienta o `.exe`
-2. `%APPDATA%\ACEStream\manager\config.ini`
+2. Raiz del repo (`config.ini`) cuando se ejecuta desde codigo fuente
+3. `%APPDATA%\ACEStream\manager\config.ini`
 
 Si no encuentra el archivo, termina con error y escribe log.
 
@@ -51,7 +52,7 @@ ListaAceStream.exe
 Uso en desarrollo (opcional):
 
 ```bash
-python utils/lista_acestream.py
+python src/functions/lista_acestream.py
 ```
 
 ## Flujo interno

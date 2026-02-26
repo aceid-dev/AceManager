@@ -47,12 +47,10 @@ src/
   stop_ace_engine.py     # Detener procesos Ace Stream
   check_ace_engine.py    # Verificar estado del motor
   player.py              # Lanzar VLC con Ace ID
-  common.py              # Utilidades compartidas
-utils/
-  lista_acestream.py     # Launcher automatico (ListaAceStream.exe)
-.github/scripts/
-  build.py               # Build de EXE + ZIP con PyInstaller
+  functions/             # Utilidades compartidas (logs, vlc, procesos, etc.)
+    lista_acestream.py   # Launcher automatico (ListaAceStream.exe)
 scripts/
+  build/build.py         # Build de EXE + ZIP con PyInstaller
   fix.py                 # Herramienta interactiva para editar config.ini
   installer/install.py   # Instalador local en Windows
 ```
@@ -70,7 +68,7 @@ python src/start_ace_engine.py
 python src/stop_ace_engine.py
 python src/check_ace_engine.py
 python src/player.py <ace_id>
-python utils/lista_acestream.py
+python src/functions/lista_acestream.py
 python scripts/installer/install.py
 python scripts/fix.py
 ```
@@ -82,7 +80,7 @@ La guia completa esta en [docs/BUILD.md](docs/BUILD.md).
 Build rapido:
 
 ```bash
-python .github/scripts/build.py
+python scripts/build/build.py
 ```
 
 Salida esperada:

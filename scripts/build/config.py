@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 PYI_ROOT = REPO_ROOT / ".pyinstaller"
 BUILD_VENV = REPO_ROOT / ".venv-build"
 REQUIREMENTS_BUILD = REPO_ROOT / "requirements-build.txt"
@@ -20,7 +20,7 @@ TARGET_SPECS = {
         "windowed": False,
     },
     "ListaAceStream": {
-        "entry_script": REPO_ROOT / "utils" / "lista_acestream.py",
+        "entry_script": REPO_ROOT / "src" / "functions" / "lista_acestream.py",
         "output_name": "ListaAceStream",
         "icon_path": REPO_ROOT / "icons" / "icon.ico",
         "product_title": "Lista AceStream Launcher",

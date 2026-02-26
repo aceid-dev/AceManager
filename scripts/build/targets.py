@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from build_modules.config import TARGETS_ALL
+from build.config import TARGETS_ALL
 
 
 def normalize_targets(values: list[str]) -> set[str]:

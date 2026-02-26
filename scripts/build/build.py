@@ -6,17 +6,18 @@ import sys
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-if str(SCRIPT_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPT_DIR))
+PACKAGE_PARENT = SCRIPT_DIR.parent
+if str(PACKAGE_PARENT) not in sys.path:
+    sys.path.insert(0, str(PACKAGE_PARENT))
 
-from build_modules.cli import parse_args
-from build_modules.config import REPO_ROOT, TARGET_SPECS, TARGETS_ALL
-from build_modules.environment import ensure_build_environment
-from build_modules.logging_utils import log
-from build_modules.pyinstaller_runner import run_pyinstaller
-from build_modules.release_packager import package_release
-from build_modules.targets import normalize_targets
-from build_modules.versioning import parse_version
+from build.cli import parse_args
+from build.config import REPO_ROOT, TARGET_SPECS, TARGETS_ALL
+from build.environment import ensure_build_environment
+from build.logging_utils import log
+from build.pyinstaller_runner import run_pyinstaller
+from build.release_packager import package_release
+from build.targets import normalize_targets
+from build.versioning import parse_version
 
 
 def main() -> int:

@@ -3,9 +3,9 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
-from build_modules.config import PYI_ROOT, REPO_ROOT
-from build_modules.logging_utils import log
-from build_modules.versioning import build_version_file
+from build.config import PYI_ROOT, REPO_ROOT
+from build.logging_utils import log
+from build.versioning import build_version_file
 
 
 def run_pyinstaller(

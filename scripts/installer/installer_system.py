@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ctypes
+import os
 import sys
 from pathlib import Path
 
@@ -23,7 +24,17 @@ def elevate(argv: list[str] | None = None) -> None:
 def wait_keypress(log_info, message: str = "Presiona Enter para continuar...") -> None:
     print()
     log_info(message)
-    input()
+    try:
+        input()
+        return
+    except (EOFError, KeyboardInterrupt):
+        pass
+
+    if os.name == "nt":
+        try:
+            os.system("pause >nul")
+        except OSError:
+            pass
 
 
 def ask_yes_no(log_warning, question: str, *, default: bool = True) -> bool:
