@@ -13,7 +13,9 @@ El instalador deja listo el entorno para usar AceManager:
 
 - Verifica e instala (si hace falta) `Ace Stream` y `VLC`.
 - Copia `AceManager.exe`, `ListaAceStream.exe`, `Fix.exe` y `config.ini` en `%APPDATA%\\ACEStream`.
-- Crea accesos directos de `AceManager`, `ListaAceStream` y `Fix` en Menu Inicio y Escritorio.
+- Crea accesos directos de `AceManager`, `ListaAceStream` y `Fix` en:
+  - Menu Inicio: carpeta `%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\AceManager`
+  - Escritorio: accesos directos sueltos
 
 ## Archivos esperados en la carpeta de ejecucion
 
@@ -76,15 +78,22 @@ el instalador pregunta si deseas actualizarlos.
 - Si respondes `s`, reemplaza el archivo.
 - Si respondes `n`, conserva la version existente.
 
+## Gestion de accesos directos en Menu Inicio
+
+- El instalador busca accesos `AceManager.lnk`, `ListaAceStream.lnk` y `Fix.lnk` en `%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs`.
+- Si encuentra estos accesos fuera de `%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\AceManager`, los elimina.
+- Luego crea (o reemplaza) los accesos dentro de la carpeta `AceManager`.
+- En el Escritorio, los accesos directos se mantienen sueltos (`AceManager.lnk`, `ListaAceStream.lnk`, `Fix.lnk`).
+
 ## Resultado esperado
 
 - `%APPDATA%\\ACEStream\\AceManager.exe`
 - `%APPDATA%\\ACEStream\\ListaAceStream.exe`
 - `%APPDATA%\\ACEStream\\Fix.exe`
 - `%APPDATA%\\ACEStream\\config.ini`
-- `%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\AceManager.lnk`
-- `%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\ListaAceStream.lnk`
-- `%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Fix.lnk`
+- `%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\AceManager\\AceManager.lnk`
+- `%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\AceManager\\ListaAceStream.lnk`
+- `%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\AceManager\\Fix.lnk`
 - `%USERPROFILE%\\Desktop\\AceManager.lnk`
 - `%USERPROFILE%\\Desktop\\ListaAceStream.lnk`
 - `%USERPROFILE%\\Desktop\\Fix.lnk`

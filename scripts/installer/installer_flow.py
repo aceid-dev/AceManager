@@ -23,7 +23,7 @@ def build_paths(base_dir: Path) -> InstallerPaths:
     lista_dest = ace_dest / "ListaAceStream.exe"
     fix_dest = ace_dest / "Fix.exe"
     config_dest = ace_dest / "config.ini"
-    start_menu = appdata / "Microsoft" / "Windows" / "Start Menu" / "Programs"
+    start_menu = appdata / "Microsoft" / "Windows" / "Start Menu" / "Programs" / "AceManager"
     desktop = Path(os.environ.get("USERPROFILE", str(Path.home()))) / "Desktop"
 
     return InstallerPaths(
@@ -251,6 +251,8 @@ def _install_executables(discovery: InstallerDiscovery, paths: InstallerPaths) -
         shutil.copy2(discovery.config_src, paths.config_dest)
         log_success(f"config.ini instalado en: {paths.ace_dest}")
 
+    _cleanup_start_menu_shortcuts(paths)
+
     log_info("Creando accesos directos...")
     shortcuts = [
         (
@@ -295,6 +297,8 @@ def _install_executables(discovery: InstallerDiscovery, paths: InstallerPaths) -
     for shortcut_path, target_path, description, label in shortcuts:
         try:
             shortcut_path.parent.mkdir(parents=True, exist_ok=True)
+            if shortcut_path.exists():
+                shortcut_path.unlink()
             create_shortcut(
                 shortcut_path,
                 target_path,
@@ -313,6 +317,37 @@ def _install_executables(discovery: InstallerDiscovery, paths: InstallerPaths) -
         log_warning("Solo algunos accesos directos se crearon correctamente")
 
     return has_errors
+
+
+def _cleanup_start_menu_shortcuts(paths: InstallerPaths) -> None:
+    start_menu_root = paths.start_menu.parent
+    if not start_menu_root.exists():
+        return
+
+    managed_names = {
+        paths.link_start.name,
+        paths.link_start_lista.name,
+        paths.link_start_fix.name,
+    }
+
+    removed_count = 0
+    for candidate in start_menu_root.rglob("*.lnk"):
+        if candidate.name not in managed_names:
+            continue
+        if candidate.parent == paths.start_menu:
+            continue
+
+        try:
+            candidate.unlink()
+            removed_count += 1
+            log_info(f"Acceso directo antiguo eliminado: {candidate}")
+        except OSError as error:
+            log_warning(f"No se pudo eliminar acceso directo antiguo ({candidate}): {error}")
+
+    if removed_count > 0:
+        log_success(
+            f"Limpieza de Menu Inicio completada: {removed_count} acceso(s) antiguo(s) eliminado(s)"
+        )
 
 
 def run_installation(paths: InstallerPaths) -> bool:
