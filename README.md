@@ -61,6 +61,20 @@ scripts/
 python src/main.py
 ```
 
+## Tests
+
+Instalar dependencias de test:
+
+```bash
+python -m pip install -r requirements-test.txt
+```
+
+Ejecutar la suite:
+
+```bash
+python -m pytest -q
+```
+
 ### Comandos individuales
 
 ```bash
